@@ -142,7 +142,7 @@ export async function GET(req: NextRequest) {
     //    Stored in venue as "Competition Name||ISO_UTC_TIME"
     let timeSynced = 0;
     for (const comp of COMPETITIONS) {
-      const timedRes = await fetch(`${FD_BASE}/competitions/${comp}/matches?status=TIMED`, {
+      const timedRes = await fetch(`${FD_BASE}/competitions/${comp}/matches?status=SCHEDULED`, {
         headers: { "X-Auth-Token": process.env.FOOTBALL_DATA_API_KEY! },
         cache: "no-store",
       });
