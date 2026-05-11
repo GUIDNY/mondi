@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="60%" r="55%">
+      <stop offset="0%" stop-color="#1a3a2a"/>
+      <stop offset="100%" stop-color="#050d07"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffe066"/>
+      <stop offset="40%" stop-color="#f0b429"/>
+      <stop offset="100%" stop-color="#a0720a"/>
+    </linearGradient>
+    <linearGradient id="silver" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="50%" stop-color="#c8d8cc"/>
+      <stop offset="100%" stop-color="#8fa897"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="round"><rect width="200" height="200" rx="36"/></clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="200" height="200" rx="36" fill="url(#bg)"/>
+
+  <!-- Gold border -->
+  <rect width="200" height="200" rx="36" fill="none" stroke="url(#gold)" stroke-width="4"/>
+
+  <!-- Stadium lights (top corners) -->
+  <circle cx="30" cy="30" r="28" fill="none" stroke="#ffe066" stroke-width="0.5" opacity="0.3"/>
+  <circle cx="170" cy="30" r="28" fill="none" stroke="#ffe066" stroke-width="0.5" opacity="0.3"/>
+
+  <!-- Trophy base -->
+  <rect x="88" y="148" width="24" height="5" rx="2" fill="url(#gold)"/>
+  <rect x="82" y="152" width="36" height="5" rx="2.5" fill="url(#gold)"/>
+
+  <!-- Trophy stem -->
+  <rect x="95" y="128" width="10" height="22" rx="3" fill="url(#gold)"/>
+
+  <!-- Trophy cup -->
+  <path d="M72 68 Q72 120 100 128 Q128 120 128 68 Z" fill="url(#gold)" opacity="0.9"/>
+  <path d="M75 72 Q75 116 100 123 Q125 116 125 72 Z" fill="url(#gold)"/>
+
+  <!-- Trophy cup shine -->
+  <path d="M80 80 Q83 60 92 68" stroke="rgba(255,240,150,0.6)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Trophy handles -->
+  <path d="M72 80 Q52 80 52 95 Q52 108 72 108" stroke="url(#gold)" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M128 80 Q148 80 148 95 Q148 108 128 108" stroke="url(#gold)" stroke-width="6" fill="none" stroke-linecap="round"/>
+
+  <!-- Soccer ball on top of trophy -->
+  <circle cx="100" cy="56" r="20" fill="#f8f8f8" filter="url(#glow)"/>
+  <circle cx="100" cy="56" r="20" fill="none" stroke="#ddd" stroke-width="0.5"/>
+  <!-- Ball pattern -->
+  <path d="M100 38 L107 44 L105 54 L100 56 L95 54 L93 44 Z" fill="#1a1a1a"/>
+  <path d="M107 44 L116 46 L118 56 L110 62 L105 54 Z" fill="#1a1a1a"/>
+  <path d="M93 44 L84 46 L82 56 L90 62 L95 54 Z" fill="#1a1a1a"/>
+  <path d="M82 56 L84 66 L90 70 L90 62 Z" fill="#1a1a1a"/>
+  <path d="M118 56 L116 66 L110 70 L110 62 Z" fill="#1a1a1a"/>
+  <path d="M90 70 L100 74 L110 70 L110 62 L105 54 L100 56 L95 54 L90 62 Z" fill="#1a1a1a"/>
+
+  <!-- Confetti dots -->
+  <circle cx="45" cy="50" r="3" fill="#ffe066" opacity="0.8"/>
+  <circle cx="155" cy="45" r="2.5" fill="#ffe066" opacity="0.7"/>
+  <circle cx="38" cy="80" r="2" fill="#5cde97" opacity="0.6"/>
+  <circle cx="162" cy="75" r="2" fill="#5cde97" opacity="0.6"/>
+  <circle cx="50" cy="120" r="1.5" fill="#ffe066" opacity="0.5"/>
+  <circle cx="150" cy="115" r="1.5" fill="#ffe066" opacity="0.5"/>
+
+  <!-- "mondi" text -->
+  <text x="100" y="174" text-anchor="middle" font-family="'Arial Black', sans-serif" font-weight="900" font-size="26" fill="url(#silver)" letter-spacing="2">mondi</text>
+
+  <!-- Hebrew subtitle -->
+  <text x="100" y="189" text-anchor="middle" font-family="Arial, sans-serif" font-size="7.5" fill="url(#gold)" letter-spacing="0.5">ניחושי תוצאות למונדיאל</text>
+</svg>

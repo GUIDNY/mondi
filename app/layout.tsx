@@ -3,8 +3,9 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 
 export const metadata: Metadata = {
-  title: "מונדיאל 2026",
-  description: "ניחושי תוצאות מונדיאל 2026",
+  title: "mondi | ניחושי תוצאות מונדיאל 2026",
+  description: "ניחשו תוצאות מונדיאל 2026, צברו נקודות, נצחו את החברים!",
+  icons: { icon: "/mondi-logo.svg", apple: "/mondi-logo.svg" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

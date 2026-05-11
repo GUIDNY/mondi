@@ -105,14 +105,20 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: "1.75rem" }}>
-          {/* Ball icon */}
-          <div style={{ fontSize: "3rem", marginBottom: "0.5rem", filter: "drop-shadow(0 0 16px rgba(92,222,151,0.5))" }}>⚽</div>
+          <img
+            src="/mondi-logo.svg" alt="mondi"
+            style={{ width: 96, height: 96, borderRadius: 20, marginBottom: "0.75rem",
+              filter: "drop-shadow(0 0 20px rgba(255,200,50,0.35))",
+              display: "block", margin: "0 auto 0.75rem",
+            }}
+          />
           <div style={{
-            fontFamily: "Montserrat, sans-serif", fontWeight: 900, fontSize: "1.8rem",
-            color: "var(--primary)", letterSpacing: "-0.02em",
-            textShadow: "0 0 30px rgba(92,222,151,0.4)",
+            fontFamily: "'Arial Black', sans-serif", fontWeight: 900, fontSize: "2rem",
+            background: "linear-gradient(135deg, #fff 0%, #ffe066 50%, #f0b429 100%)",
+            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+            backgroundClip: "text", letterSpacing: "0.04em",
           }}>
-            STADIUM ELITE
+            mondi
           </div>
           <p style={{ color: "rgba(188,202,189,0.7)", fontSize: "0.8rem", marginTop: "0.3rem", fontFamily: "Rubik, sans-serif" }}>
             ניחושי תוצאות מונדיאל 2026 🏆

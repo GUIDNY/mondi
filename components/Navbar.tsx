@@ -65,13 +65,16 @@ export default function Navbar() {
     }}>
       {/* RIGHT side (start in RTL): logo + nav links */}
       <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
-        <Link href="/" style={{ textDecoration: "none" }}>
+        <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <img src="/mondi-logo.svg" alt="mondi" style={{ width: 36, height: 36, borderRadius: 8 }} />
           <span style={{
-            fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "1.3rem",
-            color: "var(--primary)", letterSpacing: "-0.02em",
-            direction: "ltr", display: "inline-block",
+            fontFamily: "'Arial Black', Montserrat, sans-serif", fontWeight: 900, fontSize: "1.4rem",
+            background: "linear-gradient(135deg, #fff 0%, #ffe066 50%, #f0b429 100%)",
+            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+            direction: "ltr", display: "inline-block", letterSpacing: "0.02em",
           }}>
-            STADIUM ELITE
+            mondi
           </span>
         </Link>
         <nav className="header-nav-links" style={{ display: "flex", gap: "1.5rem" }}>
