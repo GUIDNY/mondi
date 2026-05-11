@@ -38,8 +38,9 @@ export default function Navbar() {
   useEffect(() => {
     fetch("/api/auth/me")
       .then((r) => r.json())
-      .then((d) => setSession(d?.userId ? d : null));
-  }, []);
+      .then((d) => setSession(d?.userId ? d : null))
+      .catch(() => setSession(null));
+  }, [path]); // re-check on every navigation
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
