@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
 
     const token = await signToken({ userId: user.id, username: user.username, isAdmin: user.is_admin });
     const res = NextResponse.json({ success: true, isAdmin: user.is_admin });
-    res.cookies.set(COOKIE_NAME, token, { httpOnly: true, maxAge: 60 * 60 * 24 * 30, path: "/" });
+    res.cookies.set(COOKIE_NAME, token, { httpOnly: true, secure: true, sameSite: "lax", maxAge: 60 * 60 * 24 * 30, path: "/" });
     return res;
   } catch {
     return NextResponse.json({ error: "שגיאת שרת" }, { status: 500 });
