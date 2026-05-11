@@ -41,46 +41,47 @@ export default async function Home() {
           position: "absolute", inset: 0,
           background: "linear-gradient(135deg, #0a1f0d 0%, #133520 40%, #1a4a25 70%, #0e2014 100%)",
         }} />
-        {/* Green glow orbs */}
+        {/* Green glow orbs — on the LEFT (decorative/transparent side in RTL) */}
         <div style={{
-          position: "absolute", top: -60, right: -60,
+          position: "absolute", top: -60, left: -60,
           width: 280, height: 280, borderRadius: "50%",
           background: "radial-gradient(circle, rgba(92,222,151,0.18) 0%, transparent 70%)",
           pointerEvents: "none",
         }} />
         <div style={{
-          position: "absolute", bottom: -40, left: "40%",
+          position: "absolute", bottom: -40, left: "30%",
           width: 200, height: 200, borderRadius: "50%",
           background: "radial-gradient(circle, rgba(255,219,60,0.08) 0%, transparent 70%)",
           pointerEvents: "none",
         }} />
-        {/* Left fade overlay */}
+        {/* RTL fade — RIGHT side dark (content area), LEFT side transparent (image area) */}
         <div style={{
           position: "absolute", inset: 0,
-          background: "linear-gradient(to right, var(--bg) 0%, rgba(14,21,16,0.65) 50%, transparent 100%)",
+          background: "linear-gradient(to left, var(--bg) 0%, rgba(14,21,16,0.75) 45%, transparent 100%)",
           pointerEvents: "none",
         }} />
 
-        {/* Content */}
-        <div style={{ position: "relative", zIndex: 10, padding: "2rem 2.5rem", maxWidth: 580 }}>
+        {/* Content — RTL: naturally aligns to the RIGHT side */}
+        <div style={{ position: "relative", zIndex: 10, padding: "2rem 2.5rem", maxWidth: 560, marginRight: "auto" }}>
           {/* Badge */}
           <span style={{
-            display: "inline-block", padding: "3px 12px", borderRadius: 999,
+            display: "inline-block", padding: "3px 14px", borderRadius: 999,
             background: "var(--secondary-container)", color: "var(--on-secondary)",
-            fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.12em",
+            fontSize: "0.64rem", fontWeight: 700, letterSpacing: "0.1em",
             textTransform: "uppercase", marginBottom: "0.9rem",
+            fontFamily: "Rubik,sans-serif",
           }}>
             Diamond Member
           </span>
           <h1 style={{
-            fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "2.2rem",
-            color: "#fff", lineHeight: 1.15, marginBottom: "0.5rem", letterSpacing: "-0.02em",
+            fontFamily: "Rubik,sans-serif", fontWeight: 800, fontSize: "2.2rem",
+            color: "#fff", lineHeight: 1.2, marginBottom: "0.5rem",
           }}>
             ברוך הבא,{" "}
             <span style={{ color: "var(--primary)" }}>אלוף</span>
           </h1>
-          <p style={{ color: "var(--on-surface-variant)", fontSize: "0.9rem", marginBottom: "1.75rem", maxWidth: 420 }}>
-            מונדיאל 2026 מתקרב — ניחשו תוצאות, צברו נקודות ותנצחו את החברים!
+          <p style={{ color: "var(--on-surface-variant)", fontSize: "0.88rem", marginBottom: "1.5rem", fontWeight: 300, lineHeight: 1.6 }}>
+            מונדיאל 2026 מתקרב — ניחשו תוצאות, צברו נקודות, תנצחו את החברים!
           </p>
 
           {/* Stats glass cards */}
@@ -88,14 +89,14 @@ export default async function Home() {
             <div className="glass-card" style={{ padding: "0.7rem 1.1rem", borderRadius: 16, display: "flex", alignItems: "center", gap: "0.65rem" }}>
               <span className="material-symbols-outlined" style={{ color: "var(--secondary-container)", fontSize: 20 }}>payments</span>
               <div>
-                <div style={{ fontSize: "0.58rem", color: "var(--on-surface-variant)", textTransform: "uppercase", letterSpacing: "0.1em" }}>משחקים</div>
+                <div style={{ fontSize: "0.6rem", color: "var(--on-surface-variant)", fontWeight: 500, letterSpacing: "0.05em" }}>משחקים</div>
                 <div style={{ fontFamily: "Montserrat,sans-serif", fontWeight: 700, fontSize: "1rem", color: "#fff" }}>{total}</div>
               </div>
             </div>
             <div className="glass-card" style={{ padding: "0.7rem 1.1rem", borderRadius: 16, display: "flex", alignItems: "center", gap: "0.65rem" }}>
               <span className="material-symbols-outlined" style={{ color: "var(--primary)", fontSize: 20 }}>trending_up</span>
               <div>
-                <div style={{ fontSize: "0.58rem", color: "var(--on-surface-variant)", textTransform: "uppercase", letterSpacing: "0.1em" }}>הסתיימו</div>
+                <div style={{ fontSize: "0.6rem", color: "var(--on-surface-variant)", fontWeight: 500, letterSpacing: "0.05em" }}>הסתיימו</div>
                 <div style={{ fontFamily: "Montserrat,sans-serif", fontWeight: 700, fontSize: "1rem", color: "#fff" }}>{completed}</div>
               </div>
             </div>
@@ -105,16 +106,16 @@ export default async function Home() {
           <div style={{ display: "flex", gap: "0.75rem", marginTop: "1.25rem" }}>
             <Link href="/predictions" style={{
               background: "var(--primary)", color: "var(--on-primary-container)",
-              fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "0.82rem",
+              fontFamily: "Rubik,sans-serif", fontWeight: 700, fontSize: "0.85rem",
               padding: "10px 22px", borderRadius: 10, textDecoration: "none",
-              boxShadow: "0 0 20px rgba(92,222,151,0.3)", letterSpacing: "0.03em",
+              boxShadow: "0 0 20px rgba(92,222,151,0.3)",
             }}>
-              הכנס ניחושים ←
+              הכנס ניחושים
             </Link>
             <Link href="/leaderboard" style={{
               background: "rgba(255,255,255,0.07)", backdropFilter: "blur(10px)",
               border: "1px solid rgba(255,255,255,0.12)", color: "var(--on-surface)",
-              fontWeight: 600, fontSize: "0.82rem",
+              fontWeight: 500, fontSize: "0.85rem",
               padding: "10px 20px", borderRadius: 10, textDecoration: "none",
             }}>
               טבלת דירוג
@@ -148,8 +149,8 @@ export default async function Home() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "1rem" }}>
           <div>
             <h2 style={{
-              fontFamily: "Montserrat,sans-serif", fontWeight: 700, fontSize: "1.15rem",
-              color: "#fff", textTransform: "uppercase", letterSpacing: "0.04em",
+              fontFamily: "Rubik,sans-serif", fontWeight: 700, fontSize: "1.1rem",
+              color: "#fff", textTransform: "uppercase", letterSpacing: "0.05em",
             }}>
               שלב הבתים
             </h2>
@@ -157,8 +158,8 @@ export default async function Home() {
               12 בתים, 48 קבוצות
             </p>
           </div>
-          <Link href="/predictions" style={{ color: "var(--primary)", fontSize: "0.78rem", fontWeight: 600, textDecoration: "none" }}>
-            נחש עכשיו ←
+          <Link href="/predictions" style={{ color: "var(--primary)", fontSize: "0.78rem", fontWeight: 500, textDecoration: "none" }}>
+            נחש עכשיו
           </Link>
         </div>
 

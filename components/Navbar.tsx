@@ -48,61 +48,63 @@ export default function Navbar() {
 
   const navItems = session?.isAdmin ? [...NAV_ITEMS, ADMIN_ITEM] : NAV_ITEMS;
 
-  /* ── Top Header (always visible, full width, above sidebar) ── */
+  /* ── Top Header — RTL: logo on RIGHT, user on LEFT ── */
   const header = (
     <header style={{
       position: "fixed", top: 0, left: 0, right: 0, height: "var(--header-h)",
-      background: "rgba(14,21,16,0.85)", backdropFilter: "blur(12px)",
+      background: "rgba(14,21,16,0.88)", backdropFilter: "blur(14px)",
       borderBottom: "1px solid rgba(61,74,64,0.22)",
       boxShadow: "0 0 20px rgba(92,222,151,0.08)",
       display: "flex", alignItems: "center", justifyContent: "space-between",
       padding: "0 1.25rem", zIndex: 300,
-      /* Force LTR so logo is on left, actions on right — matching Stadium Elite */
-      direction: "ltr",
+      direction: "rtl", /* RTL: first child → RIGHT, last child → LEFT */
     }}>
-      {/* Left: logo */}
-      <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "1rem" }}>
-        <span style={{
-          fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "1.3rem",
-          color: "var(--primary)", letterSpacing: "-0.02em",
-        }}>
-          STADIUM ELITE
-        </span>
-        <nav style={{ display: "flex", gap: "1.5rem", marginLeft: "1rem" }}>
+      {/* RIGHT side (start in RTL): logo + nav links */}
+      <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
+        <Link href="/" style={{ textDecoration: "none" }}>
+          <span style={{
+            fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "1.3rem",
+            color: "var(--primary)", letterSpacing: "-0.02em",
+            direction: "ltr", display: "inline-block",
+          }}>
+            STADIUM ELITE
+          </span>
+        </Link>
+        <nav style={{ display: "flex", gap: "1.5rem" }}>
           {navItems.map(item => (
-            <span key={item.href} style={{
+            <Link key={item.href} href={item.href} style={{
               color: path === item.href ? "var(--primary)" : "var(--on-surface-variant)",
-              fontSize: "0.72rem", fontWeight: 600, letterSpacing: "0.02em",
+              fontSize: "0.78rem", fontWeight: path === item.href ? 600 : 400,
+              textDecoration: "none",
               borderBottom: path === item.href ? "2px solid var(--primary)" : "2px solid transparent",
               paddingBottom: "2px",
+              fontFamily: "Rubik,sans-serif",
             }}>
-              {item.label}
-            </span>
+              {item.labelHe}
+            </Link>
           ))}
         </nav>
-      </Link>
+      </div>
 
-      {/* Right: balance + actions */}
-      <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+      {/* LEFT side (end in RTL): user info + avatar */}
+      <div style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
+        <Icon name="notifications" size={22} />
         {session && (
-          <div style={{ textAlign: "right", marginRight: "0.5rem" }}>
-            <div style={{ fontSize: "0.6rem", color: "var(--on-surface-variant)", textTransform: "uppercase", letterSpacing: "0.12em" }}>
-              שחקן
-            </div>
-            <div style={{ fontFamily: "Montserrat,sans-serif", fontWeight: 700, color: "var(--primary)", fontSize: "0.95rem" }}>
+          <div style={{ textAlign: "left" }}>
+            <div style={{ fontSize: "0.58rem", color: "var(--on-surface-variant)", textTransform: "uppercase", letterSpacing: "0.1em" }}>שחקן</div>
+            <div style={{ fontFamily: "Rubik,sans-serif", fontWeight: 600, color: "var(--primary)", fontSize: "0.88rem" }}>
               {session.username}
             </div>
           </div>
         )}
-        <Icon name="notifications" size={22} />
         {session ? (
           <button onClick={logout} title="יציאה" style={{
-            width: 32, height: 32, borderRadius: "50%",
+            width: 34, height: 34, borderRadius: "50%",
             background: "linear-gradient(135deg, var(--primary), #22c55e)",
             border: "1.5px solid rgba(92,222,151,0.35)",
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: "0.85rem", fontWeight: 800, color: "var(--on-primary-container)",
-            cursor: "pointer",
+            fontSize: "0.9rem", fontWeight: 800, color: "var(--on-primary-container)",
+            cursor: "pointer", fontFamily: "Rubik,sans-serif",
           }}>
             {session.username[0]?.toUpperCase()}
           </button>
@@ -110,7 +112,7 @@ export default function Navbar() {
           <Link href="/login" style={{
             background: "var(--primary)", color: "var(--on-primary-container)",
             fontWeight: 700, padding: "6px 16px", borderRadius: 8, textDecoration: "none",
-            fontSize: "0.82rem", fontFamily: "Montserrat,sans-serif",
+            fontSize: "0.82rem", fontFamily: "Rubik,sans-serif",
           }}>
             כניסה
           </Link>
@@ -130,8 +132,8 @@ export default function Navbar() {
           </div>
           <div>
             <div style={{
-              fontFamily: "Montserrat,sans-serif", fontWeight: 900, fontSize: "0.78rem",
-              color: "var(--primary)", fontStyle: "italic", textTransform: "uppercase", letterSpacing: "0.04em",
+              fontFamily: "Rubik,sans-serif", fontWeight: 800, fontSize: "0.78rem",
+              color: "var(--primary)", fontStyle: "italic", textTransform: "uppercase", letterSpacing: "0.05em",
             }}>PRO BETTOR</div>
             <div style={{ fontSize: "0.68rem", color: "var(--on-surface-variant)" }}>Tier: Diamond</div>
           </div>
@@ -167,10 +169,9 @@ export default function Navbar() {
         <Link href="/predictions" style={{
           display: "block", width: "100%", padding: "1rem",
           background: "var(--primary)", color: "var(--on-primary-container)",
-          fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "0.82rem",
+          fontFamily: "Rubik,sans-serif", fontWeight: 700, fontSize: "0.85rem",
           borderRadius: 12, textAlign: "center", textDecoration: "none",
           boxShadow: "0 0 20px rgba(92,222,151,0.3)",
-          letterSpacing: "0.04em",
           transition: "transform 0.2s",
         }}>
           הכנס ניחוש מהיר
