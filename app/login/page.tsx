@@ -29,10 +29,18 @@ export default function LoginPage() {
         body: JSON.stringify(body),
       });
       const data = await res.json();
-      if (!res.ok) setError(data.error || "שגיאה");
-      else { router.push("/predictions"); router.refresh(); }
-    } catch { setError("שגיאת רשת"); }
-    finally { setLoading(false); }
+      if (!res.ok) {
+        setError(data.error || `שגיאה (${res.status})`);
+      } else {
+        router.push("/predictions");
+        router.refresh();
+      }
+    } catch (err) {
+      setError("שגיאת רשת — נסה שוב");
+      console.error("Login error:", err);
+    } finally {
+      setLoading(false);
+    }
   }
 
   const inputStyle: React.CSSProperties = {
