@@ -50,6 +50,19 @@ const scoreInput: React.CSSProperties = {
   fontFamily: "Montserrat,sans-serif", outline: "none",
 };
 
+const WC_STAGES = new Set(["group", "r32", "r16", "qf", "sf", "3rd", "final"]);
+
+const COMPETITIONS: { key: string; label: string; emoji: string }[] = [
+  { key: "PL", label: "פרמייר ליג", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
+  { key: "WC", label: "מונדיאל 2026", emoji: "🌍" },
+  { key: "SA", label: "סריה א", emoji: "🇮🇹" },
+];
+
+function getCompetition(stage: string): string {
+  if (WC_STAGES.has(stage)) return "WC";
+  return stage; // "PL", "SA", etc.
+}
+
 export default function PredictionsPage() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [predictions, setPredictions] = useState<Record<number, Prediction>>({});
@@ -58,6 +71,7 @@ export default function PredictionsPage() {
   const [saved, setSaved] = useState<Record<number, boolean>>({});
   const [filter, setFilter] = useState<"all" | "pending" | "done">("all");
   const [activeGroup, setActiveGroup] = useState<string>("all");
+  const [competition, setCompetition] = useState<string>("PL");
 
   const load = useCallback(async () => {
     const [mRes, pRes] = await Promise.all([fetch("/api/matches"), fetch("/api/predictions")]);
@@ -96,24 +110,32 @@ export default function PredictionsPage() {
   const groupMatches = matches.filter((m) => m.stage === "group");
   const groups = [...new Set(groupMatches.map((m) => m.group_name).filter(Boolean))] as string[];
 
+  // Competitions that actually have matches in DB
+  const availableComps = COMPETITIONS.filter((c) =>
+    matches.some((m) => getCompetition(m.stage) === c.key)
+  );
+
   const displayMatches = matches.filter((m) => {
     if (m.home_team === "TBD") return false;
+    if (getCompetition(m.stage) !== competition) return false;
     if (filter === "pending" && predictions[m.id]) return false;
     if (filter === "done" && !predictions[m.id]) return false;
-    if (activeGroup !== "all" && m.stage === "group" && m.group_name !== activeGroup) return false;
-    if (activeGroup !== "all" && m.stage !== "group") return false;
+    if (competition === "WC" && activeGroup !== "all" && m.stage === "group" && m.group_name !== activeGroup) return false;
+    if (competition === "WC" && activeGroup !== "all" && m.stage !== "group") return false;
     return true;
   });
 
-  const byStage: Record<string, Match[]> = {};
+  // Group PL matches by matchday (group_name), WC by stage
+  const bySection: Record<string, Match[]> = {};
   for (const m of displayMatches) {
-    if (!byStage[m.stage]) byStage[m.stage] = [];
-    byStage[m.stage].push(m);
+    const key = competition === "WC" ? m.stage : (m.group_name ?? m.stage);
+    if (!bySection[key]) bySection[key] = [];
+    bySection[key].push(m);
   }
 
-  const totalPredicted = Object.keys(predictions).length;
-  const totalAvailable =
-    matches.filter((m) => m.home_team !== "TBD" && !isLocked(m)).length + Object.keys(predictions).length;
+  const compMatches = matches.filter((m) => getCompetition(m.stage) === competition && m.home_team !== "TBD");
+  const totalPredicted = compMatches.filter((m) => predictions[m.id]).length;
+  const totalAvailable = compMatches.filter((m) => !isLocked(m) || predictions[m.id]).length;
 
   function chipStyle(active: boolean, variant: "green" | "blue" = "green"): React.CSSProperties {
     const c = variant === "green" ? "rgba(92,222,151" : "rgba(96,165,250";
@@ -127,24 +149,49 @@ export default function PredictionsPage() {
     };
   }
 
+  const currentComp = COMPETITIONS.find((c) => c.key === competition);
+
   return (
     <div>
+      {/* Competition tabs */}
+      <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
+        {availableComps.map((c) => {
+          const active = competition === c.key;
+          return (
+            <button key={c.key} onClick={() => { setCompetition(c.key); setFilter("all"); setActiveGroup("all"); }} style={{
+              display: "flex", alignItems: "center", gap: "0.5rem",
+              padding: "0.6rem 1.1rem", borderRadius: 12, border: "1.5px solid",
+              borderColor: active ? "rgba(92,222,151,0.5)" : "rgba(61,74,64,0.35)",
+              background: active ? "rgba(92,222,151,0.12)" : "rgba(255,255,255,0.03)",
+              color: active ? "var(--primary)" : "var(--on-surface-variant)",
+              cursor: "pointer", fontFamily: "Rubik,sans-serif",
+              fontWeight: active ? 700 : 400, fontSize: "0.9rem",
+              boxShadow: active ? "0 0 16px rgba(92,222,151,0.15)" : "none",
+              transition: "all 0.15s",
+            }}>
+              <span style={{ fontSize: "1.1rem" }}>{c.emoji}</span>
+              {c.label}
+            </button>
+          );
+        })}
+      </div>
+
       {/* Header */}
-      <div style={{ marginBottom: "1.5rem" }}>
+      <div style={{ marginBottom: "1.25rem" }}>
         <h1 style={{
-          fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "1.8rem",
-          color: "#fff", textTransform: "uppercase", letterSpacing: "0.03em", marginBottom: "0.3rem",
+          fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "1.6rem",
+          color: "#fff", letterSpacing: "0.02em", marginBottom: "0.2rem",
         }}>
-          My Bets
+          {currentComp?.emoji} {currentComp?.label}
         </h1>
-        <p style={{ color: "var(--on-surface-variant)", fontSize: "0.85rem" }}>
-          ניחשת {totalPredicted} מתוך {totalAvailable} משחקים אפשריים
+        <p style={{ color: "var(--on-surface-variant)", fontSize: "0.82rem" }}>
+          ניחשת {totalPredicted} מתוך {totalAvailable} משחקים
         </p>
       </div>
 
       {/* Progress */}
       {totalAvailable > 0 && (
-        <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 8, height: 5, marginBottom: "1.5rem", overflow: "hidden" }}>
+        <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 8, height: 4, marginBottom: "1.25rem", overflow: "hidden" }}>
           <div style={{
             height: "100%", borderRadius: 8,
             background: "linear-gradient(90deg, var(--primary), #22c55e)",
@@ -160,28 +207,35 @@ export default function PredictionsPage() {
         <button style={chipStyle(filter === "all")} onClick={() => setFilter("all")}>הכל</button>
         <button style={chipStyle(filter === "pending")} onClick={() => setFilter("pending")}>חסרים</button>
         <button style={chipStyle(filter === "done")} onClick={() => setFilter("done")}>הושלמו</button>
-        <div style={{ width: 1, height: 18, background: "rgba(61,74,64,0.5)", margin: "0 0.15rem" }} />
-        <button style={chipStyle(activeGroup === "all", "blue")} onClick={() => setActiveGroup("all")}>כל הבתים</button>
-        {groups.map((g) => (
-          <button key={g} style={chipStyle(activeGroup === g, "blue")} onClick={() => setActiveGroup(g)}>
-            בית {g}
-          </button>
-        ))}
+        {competition === "WC" && groups.length > 0 && (
+          <>
+            <div style={{ width: 1, height: 18, background: "rgba(61,74,64,0.5)", margin: "0 0.15rem" }} />
+            <button style={chipStyle(activeGroup === "all", "blue")} onClick={() => setActiveGroup("all")}>כל הבתים</button>
+            {groups.map((g) => (
+              <button key={g} style={chipStyle(activeGroup === g, "blue")} onClick={() => setActiveGroup(g)}>
+                בית {g}
+              </button>
+            ))}
+          </>
+        )}
       </div>
 
       {/* Match list */}
-      {STAGE_ORDER.map((stage) => {
-        const stageMatches = byStage[stage];
+      {(competition === "WC" ? STAGE_ORDER.filter(s => bySection[s]?.length) : Object.keys(bySection)).map((section) => {
+        const stageMatches = bySection[section];
         if (!stageMatches?.length) return null;
+        const sectionLabel = competition === "WC"
+          ? (STAGE_LABELS[section as keyof typeof STAGE_LABELS] ?? section)
+          : section;
         return (
-          <div key={stage} style={{ marginBottom: "2rem" }}>
+          <div key={section} style={{ marginBottom: "2rem" }}>
             <h2 style={{
               fontFamily: "Montserrat,sans-serif", fontWeight: 700, fontSize: "0.75rem",
               color: "var(--on-surface-variant)", marginBottom: "0.65rem",
               textTransform: "uppercase", letterSpacing: "0.1em",
             }}>
-              {STAGE_LABELS[stage]}
-              {stage === "group" && activeGroup !== "all" && ` — בית ${activeGroup}`}
+              {sectionLabel}
+              {section === "group" && activeGroup !== "all" && ` — בית ${activeGroup}`}
             </h2>
             <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
               {stageMatches.map((m) => {
@@ -285,91 +339,6 @@ export default function PredictionsPage() {
         );
       })}
 
-      {/* Extra stages not in STAGE_ORDER (e.g. SA demo, other leagues) */}
-      {Object.keys(byStage)
-        .filter((s) => !(STAGE_ORDER as string[]).includes(s))
-        .map((stage) => {
-          const stageMatches = byStage[stage];
-          if (!stageMatches?.length) return null;
-          const label = stageMatches[0]?.group_name ?? stage;
-          return (
-            <div key={stage} style={{ marginBottom: "2rem" }}>
-              <h2 style={{
-                fontFamily: "Montserrat,sans-serif", fontWeight: 700, fontSize: "0.75rem",
-                color: "var(--on-surface-variant)", marginBottom: "0.65rem",
-                textTransform: "uppercase", letterSpacing: "0.1em",
-              }}>
-                {label}
-              </h2>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
-                {stageMatches.map((m) => {
-                  const pred = predictions[m.id];
-                  const draft = drafts[m.id] || { home: "", away: "" };
-                  const locked = isLocked(m);
-                  const badge = pred ? pointsBadge(pred.points) : null;
-                  return (
-                    <div key={m.id} className="glass-card" style={{
-                      borderRadius: 16, padding: "0.85rem 1.1rem",
-                      display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap",
-                      border: pred ? "1px solid rgba(92,222,151,0.18)" : "1px solid rgba(255,255,255,0.07)",
-                    }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flex: 1, minWidth: 110 }}>
-                        <span style={{ fontSize: "1.15rem" }}>{m.home_flag}</span>
-                        <span style={{ fontWeight: 600, fontSize: "0.85rem", color: "var(--on-surface)" }}>{m.home_team}</span>
-                      </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                        {locked ? (
-                          <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                            {m.home_score !== null ? (
-                              <span style={{ fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "1.2rem", color: "var(--primary)" }}>
-                                {m.home_score} : {m.away_score}
-                              </span>
-                            ) : (
-                              <span style={{ fontSize: "0.75rem", color: "var(--on-surface-variant)" }}>נעול</span>
-                            )}
-                            {badge && (
-                              <span style={{ fontSize: "0.72rem", padding: "2px 8px", borderRadius: 6, background: badge.bg, color: badge.color, border: `1px solid ${badge.border}`, fontWeight: 600 }}>
-                                {badge.text}
-                              </span>
-                            )}
-                          </div>
-                        ) : (
-                          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                            <input type="number" min={0} max={30} style={scoreInput}
-                              value={draft.home} placeholder="0"
-                              onChange={(e) => setDrafts((d) => ({ ...d, [m.id]: { ...d[m.id], home: e.target.value } }))} />
-                            <span style={{ color: "var(--on-surface-variant)", fontWeight: 700 }}>:</span>
-                            <input type="number" min={0} max={30} style={scoreInput}
-                              value={draft.away} placeholder="0"
-                              onChange={(e) => setDrafts((d) => ({ ...d, [m.id]: { ...d[m.id], away: e.target.value } }))} />
-                            <button onClick={() => save(m.id)} disabled={saving[m.id] || draft.home === "" || draft.away === ""}
-                              style={{
-                                background: "var(--primary)", color: "var(--on-primary-container)",
-                                border: "none", borderRadius: 8, padding: "6px 14px", fontFamily: "Rubik,sans-serif",
-                                fontWeight: 700, fontSize: "0.78rem", cursor: "pointer",
-                                opacity: (draft.home === "" || draft.away === "") ? 0.4 : 1,
-                              }}>
-                              {saved[m.id] ? "✓" : saving[m.id] ? "..." : "שמור"}
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flex: 1, justifyContent: "flex-end", minWidth: 110 }}>
-                        <span style={{ fontWeight: 600, fontSize: "0.85rem", color: "var(--on-surface)" }}>{m.away_team}</span>
-                        <span style={{ fontSize: "1.15rem" }}>{m.away_flag}</span>
-                      </div>
-                      {!locked && (
-                        <div style={{ width: "100%", color: "var(--on-surface-variant)", fontSize: "0.68rem", marginTop: "2px" }}>
-                          {formatDate(m.match_date)}{m.venue ? ` · ${m.venue}` : ""}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
 
       {displayMatches.length === 0 && (
         <div className="glass-card" style={{ textAlign: "center", padding: "3rem", borderRadius: 20, color: "var(--on-surface-variant)" }}>

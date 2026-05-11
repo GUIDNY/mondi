@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase, calculatePoints, DbPrediction } from "@/lib/supabase";
 
 const FD_BASE = "https://api.football-data.org/v4";
-// Competitions to sync: WC = FIFA World Cup, SA = Serie A (demo)
-const COMPETITIONS = ["WC", "SA"];
+// Competitions to sync
+const COMPETITIONS = ["WC", "PL", "SA"];
 
 interface FdMatch {
   id: number;
