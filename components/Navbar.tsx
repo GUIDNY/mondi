@@ -74,7 +74,7 @@ export default function Navbar() {
             STADIUM ELITE
           </span>
         </Link>
-        <nav style={{ display: "flex", gap: "1.5rem" }}>
+        <nav className="header-nav-links" style={{ display: "flex", gap: "1.5rem" }}>
           {navItems.map(item => {
             const active = item.exact ? path === item.href : path.startsWith(item.href);
             return (
@@ -95,9 +95,9 @@ export default function Navbar() {
 
       {/* LEFT side (end in RTL): user info + avatar */}
       <div style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
-        <Icon name="notifications" size={22} />
+        <span className="header-user-label"><Icon name="notifications" size={22} /></span>
         {session && (
-          <div style={{ textAlign: "left" }}>
+          <div className="header-user-label" style={{ textAlign: "left" }}>
             <div style={{ fontSize: "0.58rem", color: "var(--on-surface-variant)", textTransform: "uppercase", letterSpacing: "0.1em" }}>שחקן</div>
             <div style={{ fontFamily: "Rubik,sans-serif", fontWeight: 600, color: "var(--primary)", fontSize: "0.88rem" }}>
               {session.username}

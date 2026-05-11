@@ -249,89 +249,92 @@ export default function PredictionsPage() {
                 const badge = pred ? pointsBadge(pred.points) : null;
 
                 return (
-                  <div key={m.id} className="glass-card" style={{
-                    borderRadius: 16, padding: "0.85rem 1.1rem",
-                    display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap",
+                  <div key={m.id} className="glass-card match-card" style={{
+                    borderRadius: 16, padding: "0.85rem 1rem",
                     border: pred
                       ? "1px solid rgba(92,222,151,0.18)"
                       : "1px solid rgba(255,255,255,0.07)",
                   }}>
                     {/* Home team */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flex: 1, minWidth: 110 }}>
-                      <span style={{ fontSize: "1.15rem" }}>{m.home_flag}</span>
-                      <span style={{ fontWeight: 600, fontSize: "0.85rem", color: "var(--on-surface)" }}>{m.home_team}</span>
+                    <div className="match-card-home">
+                      <span style={{ fontSize: "1.1rem", flexShrink: 0 }}>{m.home_flag}</span>
+                      <span className="team-name">{m.home_team}</span>
                     </div>
 
                     {/* Score area */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <div className="match-card-score">
                       {locked ? (
-                        <div>
+                        <div style={{ textAlign: "center" }}>
                           {m.home_score !== null ? (
-                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap", justifyContent: "center" }}>
-                              <span style={{ fontWeight: 600, color: "var(--on-surface-variant)", fontSize: "0.85rem", fontFamily: "Montserrat,sans-serif" }}>
-                                {pred ? `${pred.home_score}:${pred.away_score}` : "—"}
-                              </span>
-                              <span style={{ color: "var(--outline-variant)" }}>→</span>
-                              <span style={{ fontWeight: 700, color: "var(--primary)", fontSize: "0.9rem", fontFamily: "Montserrat,sans-serif" }}>
-                                {m.home_score}:{m.away_score}
-                              </span>
+                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
+                                <span style={{ fontWeight: 600, color: "var(--on-surface-variant)", fontSize: "0.8rem", fontFamily: "Montserrat,sans-serif" }}>
+                                  {pred ? `${pred.home_score}:${pred.away_score}` : "—"}
+                                </span>
+                                <span style={{ color: "var(--outline-variant)", fontSize: "0.75rem" }}>→</span>
+                                <span style={{ fontWeight: 700, color: "var(--primary)", fontSize: "0.85rem", fontFamily: "Montserrat,sans-serif" }}>
+                                  {m.home_score}:{m.away_score}
+                                </span>
+                              </div>
                               {badge && (
                                 <span style={{
-                                  fontWeight: 700, fontSize: "0.75rem", borderRadius: 8,
-                                  padding: "2px 9px", background: badge.bg, color: badge.color,
-                                  border: `1px solid ${badge.border}`,
+                                  fontWeight: 700, fontSize: "0.7rem", borderRadius: 6,
+                                  padding: "1px 7px", background: badge.bg, color: badge.color,
+                                  border: `1px solid ${badge.border}`, whiteSpace: "nowrap",
                                 }}>
                                   {badge.text}
                                 </span>
                               )}
                             </div>
                           ) : (
-                            <span style={{ color: "var(--on-surface-variant)", fontSize: "0.78rem" }}>
-                              {pred ? `ניחוש: ${pred.home_score}:${pred.away_score} (נעול)` : "נעול"}
+                            <span style={{ color: "var(--on-surface-variant)", fontSize: "0.75rem", whiteSpace: "nowrap" }}>
+                              {pred ? `${pred.home_score}:${pred.away_score} 🔒` : "🔒 נעול"}
                             </span>
                           )}
                         </div>
                       ) : (
-                        <>
-                          <input type="number" min={0} max={30}
-                            value={draft.home}
-                            onChange={(e) => setDrafts((d) => ({ ...d, [m.id]: { ...d[m.id], home: e.target.value } }))}
-                            style={scoreInput}
-                          />
-                          <span style={{ color: "var(--outline-variant)", fontWeight: 700, fontSize: "1.1rem" }}>:</span>
-                          <input type="number" min={0} max={30}
-                            value={draft.away}
-                            onChange={(e) => setDrafts((d) => ({ ...d, [m.id]: { ...d[m.id], away: e.target.value } }))}
-                            style={scoreInput}
-                          />
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                            <input type="number" min={0} max={30}
+                              value={draft.home}
+                              onChange={(e) => setDrafts((d) => ({ ...d, [m.id]: { ...d[m.id], home: e.target.value } }))}
+                              style={scoreInput}
+                            />
+                            <span style={{ color: "var(--outline-variant)", fontWeight: 700, fontSize: "1rem" }}>:</span>
+                            <input type="number" min={0} max={30}
+                              value={draft.away}
+                              onChange={(e) => setDrafts((d) => ({ ...d, [m.id]: { ...d[m.id], away: e.target.value } }))}
+                              style={scoreInput}
+                            />
+                          </div>
                           <button
                             onClick={() => save(m.id)}
                             disabled={saving[m.id] || draft.home === "" || draft.away === ""}
                             style={{
                               background: saved[m.id] ? "rgba(34,197,94,0.85)" : "var(--primary)",
                               color: "var(--on-primary-container)", border: "none", borderRadius: 8,
-                              padding: "7px 14px", fontWeight: 700, cursor: "pointer",
-                              fontFamily: "Montserrat,sans-serif", fontSize: "0.78rem",
+                              padding: "5px 12px", fontWeight: 700, cursor: "pointer",
+                              fontFamily: "Montserrat,sans-serif", fontSize: "0.75rem",
                               opacity: draft.home === "" || draft.away === "" ? 0.35 : 1,
                               boxShadow: "0 0 12px rgba(92,222,151,0.2)",
-                              transition: "all 0.15s",
+                              transition: "all 0.15s", whiteSpace: "nowrap",
                             }}
                           >
-                            {saved[m.id] ? "✓ נשמר" : saving[m.id] ? "..." : "שמור"}
+                            {saved[m.id] ? "✓" : saving[m.id] ? "..." : "שמור"}
                           </button>
-                        </>
+                        </div>
                       )}
                     </div>
 
                     {/* Away team */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flex: 1, justifyContent: "flex-end", minWidth: 110 }}>
-                      <span style={{ fontWeight: 600, fontSize: "0.85rem", color: "var(--on-surface)" }}>{m.away_team}</span>
-                      <span style={{ fontSize: "1.15rem" }}>{m.away_flag}</span>
+                    <div className="match-card-away">
+                      <span className="team-name" style={{ textAlign: "right" }}>{m.away_team}</span>
+                      <span style={{ fontSize: "1.1rem", flexShrink: 0 }}>{m.away_flag}</span>
                     </div>
 
                     {/* Date row */}
                     {!locked && (
-                      <div style={{ width: "100%", color: "var(--on-surface-variant)", fontSize: "0.68rem", marginTop: "2px" }}>
+                      <div className="match-card-date">
                         {formatDate(m.match_date)}{m.venue ? ` · ${m.venue}` : ""}
                       </div>
                     )}
