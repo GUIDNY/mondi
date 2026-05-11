@@ -25,19 +25,32 @@ interface Prediction {
   points: number | null;
 }
 
-function formatDate(d: string | null) {
-  if (!d) return "";
-  const date = new Date(d);
-  const datePart = date.toLocaleDateString("he-IL", { day: "numeric", month: "long", weekday: "short", timeZone: "Asia/Jerusalem" });
-  const timePart = date.toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Jerusalem" });
+// venue format: "Competition Name||2026-05-13T19:00:00Z" (set by cron sync)
+// Falls back to match_date at 21:00 UTC if no kickoff time stored
+function parseKickoff(match: Match): Date {
+  if (match.venue?.includes("||")) {
+    return new Date(match.venue.split("||")[1]);
+  }
+  const base = match.match_date ?? new Date().toISOString().slice(0, 10);
+  return new Date(base + "T21:00:00Z");
+}
+
+function getVenueName(venue: string | null): string | null {
+  if (!venue) return null;
+  return venue.includes("||") ? venue.split("||")[0] : venue;
+}
+
+function formatDate(match: Match) {
+  const kickoff = parseKickoff(match);
+  const datePart = kickoff.toLocaleDateString("he-IL", { day: "numeric", month: "long", weekday: "short", timeZone: "Asia/Jerusalem" });
+  const timePart = kickoff.toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Jerusalem" });
   return `${datePart} · ${timePart}`;
 }
 
 function isLocked(match: Match) {
   if (match.home_score !== null) return true;
-  if (!match.match_date) return false;
-  // Lock 15 minutes before kickoff
-  return new Date(match.match_date).getTime() - 15 * 60 * 1000 <= Date.now();
+  if (!match.match_date && !match.venue?.includes("||")) return false;
+  return parseKickoff(match).getTime() - 15 * 60 * 1000 <= Date.now();
 }
 
 function pointsBadge(pts: number | null | undefined) {
@@ -335,7 +348,7 @@ export default function PredictionsPage() {
                     {/* Date row */}
                     {!locked && (
                       <div className="match-card-date">
-                        {formatDate(m.match_date)}{m.venue ? ` · ${m.venue}` : ""}
+                        {formatDate(m)}{getVenueName(m.venue) ? ` · ${getVenueName(m.venue)}` : ""}
                       </div>
                     )}
                   </div>

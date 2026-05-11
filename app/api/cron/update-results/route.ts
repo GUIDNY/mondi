@@ -3,6 +3,7 @@ import { supabase, calculatePoints, DbPrediction } from "@/lib/supabase";
 
 const FD_BASE = "https://api.football-data.org/v4";
 const COMPETITIONS = ["WC", "PL", "SA"];
+const COMP_NAMES: Record<string, string> = { WC: "World Cup 2026", PL: "Premier League", SA: "Serie A" };
 
 // Statuses where scores are live (match in progress)
 const LIVE_STATUSES = new Set(["IN_PLAY", "PAUSED", "EXTRA_TIME", "PENALTY_SHOOTOUT"]);
@@ -28,7 +29,7 @@ function teamMatch(ourName: string, apiName: string): boolean {
 
 function findOurMatch(
   apiMatch: FdMatch,
-  pool: { id: number; match_date: string | null; home_team: string; away_team: string }[]
+  pool: { id: number; match_date: string | null; home_team: string; away_team: string; venue?: string | null; home_score?: number | null }[]
 ) {
   const apiDay = apiMatch.utcDate.slice(0, 10);
   const byTeams = (m: typeof pool[0]) =>
@@ -74,19 +75,13 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Fetch all our matches that don't have a final score yet
-    const { data: unscoredMatches } = await supabase
-      .from("matches")
-      .select("id, match_date, home_team, away_team")
-      .is("home_score", null);
-
-    // Also fetch all our matches for live score updates (already have score but match is live)
+    // Fetch all our matches
     const { data: allOurMatches } = await supabase
       .from("matches")
-      .select("id, match_date, home_team, away_team");
+      .select("id, match_date, home_team, away_team, home_score, venue");
 
     const pool = allOurMatches ?? [];
-    const unscoredPool = unscoredMatches ?? [];
+    const unscoredPool = pool.filter(m => m.home_score === null);
 
     let liveUpdated = 0;
     let finishedUpdated = 0;
@@ -143,11 +138,34 @@ export async function GET(req: NextRequest) {
       finishedUpdated++;
     }
 
+    // 3. Sync kickoff times for upcoming (TIMED/SCHEDULED) matches
+    //    Stored in venue as "Competition Name||ISO_UTC_TIME"
+    let timeSynced = 0;
+    for (const comp of COMPETITIONS) {
+      const timedRes = await fetch(`${FD_BASE}/competitions/${comp}/matches?status=TIMED`, {
+        headers: { "X-Auth-Token": process.env.FOOTBALL_DATA_API_KEY! },
+        cache: "no-store",
+      });
+      if (!timedRes.ok) continue;
+      const { matches: timedMatches } = await timedRes.json() as { matches: FdMatch[] };
+      if (!timedMatches?.length) continue;
+
+      for (const apiMatch of timedMatches) {
+        const ourMatch = findOurMatch(apiMatch, unscoredPool);
+        if (!ourMatch) continue;
+        const newVenue = `${COMP_NAMES[comp] ?? comp}||${apiMatch.utcDate}`;
+        // Only update if kickoff time changed / not yet stored
+        if (ourMatch.venue === newVenue) continue;
+        await supabase.from("matches").update({ venue: newVenue }).eq("id", ourMatch.id);
+        timeSynced++;
+      }
+    }
+
     return NextResponse.json({
       ok: true,
       live_updated: liveUpdated,
       finished_updated: finishedUpdated,
-      live_matches: liveApiMatches.length,
+      time_synced: timeSynced,
       ts: new Date().toISOString(),
     });
   } catch (err) {
