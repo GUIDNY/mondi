@@ -141,16 +141,14 @@ export async function GET(req: NextRequest) {
     // 3. Sync kickoff times for upcoming (TIMED/SCHEDULED) matches
     //    Stored in venue as "Competition Name||ISO_UTC_TIME"
     let timeSynced = 0;
-    const debugSync: string[] = [];
     for (const comp of COMPETITIONS) {
       const timedRes = await fetch(`${FD_BASE}/competitions/${comp}/matches?status=SCHEDULED`, {
         headers: { "X-Auth-Token": process.env.FOOTBALL_DATA_API_KEY! },
         cache: "no-store",
       });
-      if (!timedRes.ok) { debugSync.push(`${comp}:api_err_${timedRes.status}`); continue; }
+      if (!timedRes.ok) continue;
       const body = await timedRes.json();
       const timedMatches: FdMatch[] = body.matches ?? [];
-      debugSync.push(`${comp}:api=${timedMatches.length},pool=${unscoredPool.length}`);
       if (!timedMatches.length) continue;
 
       for (const apiMatch of timedMatches) {
@@ -168,7 +166,6 @@ export async function GET(req: NextRequest) {
       live_updated: liveUpdated,
       finished_updated: finishedUpdated,
       time_synced: timeSynced,
-      debug_sync: debugSync,
       ts: new Date().toISOString(),
     });
   } catch (err) {
