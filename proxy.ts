@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken, COOKIE_NAME } from "./lib/auth";
 
-const PROTECTED_PATHS = ["/predictions", "/admin", "/groups"];
+const PROTECTED_PATHS = ["/predictions", "/admin", "/groups", "/profile"];
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -23,5 +23,5 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/predictions", "/admin/:path*", "/groups", "/groups/:path*"],
+  matcher: ["/predictions", "/admin/:path*", "/groups", "/groups/:path*", "/profile"],
 };

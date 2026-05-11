@@ -26,6 +26,7 @@ const NAV_ITEMS = [
   { href: "/predictions", label: "My Bets", labelHe: "הניחושים שלי", icon: "sports_soccer", exact: false },
   { href: "/leaderboard", label: "VIP Leaderboard", labelHe: "טבלת דירוג", icon: "military_tech", exact: false },
   { href: "/groups", label: "Groups", labelHe: "קבוצות", icon: "group", exact: false },
+  { href: "/profile", label: "Profile", labelHe: "הפרופיל שלי", icon: "person", exact: false },
 ];
 const ADMIN_ITEM = { href: "/admin", label: "Admin", labelHe: "ניהול", icon: "admin_panel_settings", exact: false };
 
@@ -192,6 +193,7 @@ export default function Navbar() {
         { href: "/predictions", label: "ניחושים", icon: "calendar_month", exact: false },
         { href: "/leaderboard", label: "דירוג", icon: "leaderboard", exact: false },
         { href: "/groups", label: "קבוצות", icon: "group", exact: false },
+        { href: "/profile", label: "פרופיל", icon: "person", exact: false },
         ...(session?.isAdmin
           ? [{ href: "/admin", label: "ניהול", icon: "admin_panel_settings", exact: false }]
           : [{ href: "/login", label: "כניסה", icon: "person", exact: true }]),

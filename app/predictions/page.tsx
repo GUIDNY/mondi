@@ -27,13 +27,17 @@ interface Prediction {
 
 function formatDate(d: string | null) {
   if (!d) return "";
-  return new Date(d).toLocaleDateString("he-IL", { day: "numeric", month: "long", weekday: "short" });
+  const date = new Date(d);
+  const datePart = date.toLocaleDateString("he-IL", { day: "numeric", month: "long", weekday: "short", timeZone: "Asia/Jerusalem" });
+  const timePart = date.toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Jerusalem" });
+  return `${datePart} · ${timePart}`;
 }
 
 function isLocked(match: Match) {
   if (match.home_score !== null) return true;
   if (!match.match_date) return false;
-  return new Date(match.match_date) <= new Date();
+  // Lock 15 minutes before kickoff
+  return new Date(match.match_date).getTime() - 15 * 60 * 1000 <= Date.now();
 }
 
 function pointsBadge(pts: number | null | undefined) {
