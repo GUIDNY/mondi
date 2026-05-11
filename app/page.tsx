@@ -1,6 +1,7 @@
 import { supabase, DbMatch } from "@/lib/supabase";
 import { STAGE_LABELS, STAGE_ORDER, Stage } from "@/lib/matches-data";
 import Link from "next/link";
+import LiveMatches from "@/components/LiveMatches";
 
 function formatDate(d: string | null) {
   if (!d) return "";
@@ -147,6 +148,9 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      {/* ── Live Matches ── */}
+      <LiveMatches />
 
       {/* ── Scoring legend ── */}
       <div style={{
