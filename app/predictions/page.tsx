@@ -285,6 +285,92 @@ export default function PredictionsPage() {
         );
       })}
 
+      {/* Extra stages not in STAGE_ORDER (e.g. SA demo, other leagues) */}
+      {Object.keys(byStage)
+        .filter((s) => !(STAGE_ORDER as string[]).includes(s))
+        .map((stage) => {
+          const stageMatches = byStage[stage];
+          if (!stageMatches?.length) return null;
+          const label = stageMatches[0]?.group_name ?? stage;
+          return (
+            <div key={stage} style={{ marginBottom: "2rem" }}>
+              <h2 style={{
+                fontFamily: "Montserrat,sans-serif", fontWeight: 700, fontSize: "0.75rem",
+                color: "var(--on-surface-variant)", marginBottom: "0.65rem",
+                textTransform: "uppercase", letterSpacing: "0.1em",
+              }}>
+                {label}
+              </h2>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
+                {stageMatches.map((m) => {
+                  const pred = predictions[m.id];
+                  const draft = drafts[m.id] || { home: "", away: "" };
+                  const locked = isLocked(m);
+                  const badge = pred ? pointsBadge(pred.points) : null;
+                  return (
+                    <div key={m.id} className="glass-card" style={{
+                      borderRadius: 16, padding: "0.85rem 1.1rem",
+                      display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap",
+                      border: pred ? "1px solid rgba(92,222,151,0.18)" : "1px solid rgba(255,255,255,0.07)",
+                    }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flex: 1, minWidth: 110 }}>
+                        <span style={{ fontSize: "1.15rem" }}>{m.home_flag}</span>
+                        <span style={{ fontWeight: 600, fontSize: "0.85rem", color: "var(--on-surface)" }}>{m.home_team}</span>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        {locked ? (
+                          <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                            {m.home_score !== null ? (
+                              <span style={{ fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "1.2rem", color: "var(--primary)" }}>
+                                {m.home_score} : {m.away_score}
+                              </span>
+                            ) : (
+                              <span style={{ fontSize: "0.75rem", color: "var(--on-surface-variant)" }}>נעול</span>
+                            )}
+                            {badge && (
+                              <span style={{ fontSize: "0.72rem", padding: "2px 8px", borderRadius: 6, background: badge.bg, color: badge.color, border: `1px solid ${badge.border}`, fontWeight: 600 }}>
+                                {badge.text}
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                            <input type="number" min={0} max={30} style={scoreInput}
+                              value={draft.home} placeholder="0"
+                              onChange={(e) => setDrafts((d) => ({ ...d, [m.id]: { ...d[m.id], home: e.target.value } }))} />
+                            <span style={{ color: "var(--on-surface-variant)", fontWeight: 700 }}>:</span>
+                            <input type="number" min={0} max={30} style={scoreInput}
+                              value={draft.away} placeholder="0"
+                              onChange={(e) => setDrafts((d) => ({ ...d, [m.id]: { ...d[m.id], away: e.target.value } }))} />
+                            <button onClick={() => save(m.id)} disabled={saving[m.id] || draft.home === "" || draft.away === ""}
+                              style={{
+                                background: "var(--primary)", color: "var(--on-primary-container)",
+                                border: "none", borderRadius: 8, padding: "6px 14px", fontFamily: "Rubik,sans-serif",
+                                fontWeight: 700, fontSize: "0.78rem", cursor: "pointer",
+                                opacity: (draft.home === "" || draft.away === "") ? 0.4 : 1,
+                              }}>
+                              {saved[m.id] ? "✓" : saving[m.id] ? "..." : "שמור"}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flex: 1, justifyContent: "flex-end", minWidth: 110 }}>
+                        <span style={{ fontWeight: 600, fontSize: "0.85rem", color: "var(--on-surface)" }}>{m.away_team}</span>
+                        <span style={{ fontSize: "1.15rem" }}>{m.away_flag}</span>
+                      </div>
+                      {!locked && (
+                        <div style={{ width: "100%", color: "var(--on-surface-variant)", fontSize: "0.68rem", marginTop: "2px" }}>
+                          {formatDate(m.match_date)}{m.venue ? ` · ${m.venue}` : ""}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+
       {displayMatches.length === 0 && (
         <div className="glass-card" style={{ textAlign: "center", padding: "3rem", borderRadius: 20, color: "var(--on-surface-variant)" }}>
           אין משחקים להציג עם הסינון הנוכחי
