@@ -56,7 +56,7 @@ h1, h2, h3, h4 {
 /* The outer wrapper that accounts for header height + sidebar width */
 .page-shell {
   padding-top: var(--header-h);
-  padding-left: var(--sidebar-w); /* sidebar on left, always reserve space on desktop */
+  padding-right: var(--sidebar-w); /* sidebar on right (RTL natural side) */
   min-height: 100vh;
 }
 
@@ -66,16 +66,16 @@ h1, h2, h3, h4 {
   padding: 1.5rem 1.5rem 2rem;
 }
 
-/* ── Sidebar (desktop ≥ 1024px) ── */
+/* ── Sidebar (desktop ≥ 1024px) — RIGHT side for RTL ── */
 .sidebar {
   position: fixed;
-  left: 0;
+  right: 0;
   top: var(--header-h);
   bottom: 0;
   width: var(--sidebar-w);
   background: var(--surface-container-low);
-  border-right: 1px solid rgba(61,74,64,0.18);
-  box-shadow: 4px 0 24px rgba(0,0,0,0.35);
+  border-left: 1px solid rgba(61,74,64,0.18);
+  box-shadow: -4px 0 24px rgba(0,0,0,0.35);
   z-index: 200;
   display: flex;
   flex-direction: column;
@@ -101,7 +101,7 @@ h1, h2, h3, h4 {
 
 @media (max-width: 1023px) {
   .sidebar { display: none !important; }
-  .page-shell { padding-left: 0; padding-bottom: 60px; }
+  .page-shell { padding-right: 0; padding-bottom: 60px; }
   .bottomnav { display: flex; }
 }
 
