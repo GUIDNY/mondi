@@ -7,9 +7,6 @@ function formatDate(d: string | null) {
   return new Date(d).toLocaleDateString("he-IL", { day: "numeric", month: "short" });
 }
 
-const S: React.CSSProperties = {};
-void S;
-
 export default async function Home() {
   const { data: matchesRaw } = await supabase.from("matches").select("*").order("match_number");
   const matches = (matchesRaw || []) as DbMatch[];
@@ -31,169 +28,227 @@ export default async function Home() {
 
   return (
     <div>
-      {/* Hero */}
-      <div style={{
-        background: "linear-gradient(135deg, #1e2e20 0%, #0d1a10 100%)",
-        border: "1px solid var(--green-border)",
-        borderRadius: 20,
-        padding: "2rem 1.75rem",
-        marginBottom: "2rem",
-        position: "relative",
-        overflow: "hidden",
+
+      {/* ── Welcome Banner ── */}
+      <section style={{
+        position: "relative", borderRadius: 24, overflow: "hidden",
+        marginBottom: "2.5rem", height: 280,
+        display: "flex", alignItems: "center",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
       }}>
+        {/* Background gradient simulating stadium atmosphere */}
         <div style={{
-          position: "absolute", top: -40, left: -40,
-          width: 200, height: 200, borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(74,222,128,0.08) 0%, transparent 70%)",
+          position: "absolute", inset: 0,
+          background: "linear-gradient(135deg, #0a1f0d 0%, #133520 40%, #1a4a25 70%, #0e2014 100%)",
+        }} />
+        {/* Green glow orbs */}
+        <div style={{
+          position: "absolute", top: -60, right: -60,
+          width: 280, height: 280, borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(92,222,151,0.18) 0%, transparent 70%)",
           pointerEvents: "none",
         }} />
-        <div style={{ marginBottom: "0.5rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <span style={{ fontSize: "1.6rem" }}>🏆</span>
-          <h1 style={{ fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "1.8rem", color: "var(--text)", margin: 0 }}>
-            מונדיאל 2026
-          </h1>
-        </div>
-        <p style={{ color: "var(--muted)", marginBottom: "1.5rem", fontSize: "0.95rem" }}>
-          ניחשו תוצאות, צברו נקודות, תנצחו את החברים!
-        </p>
+        <div style={{
+          position: "absolute", bottom: -40, left: "40%",
+          width: 200, height: 200, borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(255,219,60,0.08) 0%, transparent 70%)",
+          pointerEvents: "none",
+        }} />
+        {/* Left fade overlay */}
+        <div style={{
+          position: "absolute", inset: 0,
+          background: "linear-gradient(to right, var(--bg) 0%, rgba(14,21,16,0.65) 50%, transparent 100%)",
+          pointerEvents: "none",
+        }} />
 
-        {/* Stats */}
-        <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginBottom: "1.5rem" }}>
-          {[
-            { val: total, label: "משחקים סה״כ", color: "var(--text)" },
-            { val: completed, label: "הסתיימו", color: "var(--green)" },
-            { val: total - completed, label: "קרובים", color: "var(--yellow)" },
-            { val: 48, label: "קבוצות", color: "var(--blue)" },
-          ].map(({ val, label, color }) => (
-            <div key={label} style={{
-              background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)",
-              borderRadius: 12, padding: "0.75rem 1.25rem", minWidth: 90,
+        {/* Content */}
+        <div style={{ position: "relative", zIndex: 10, padding: "2rem 2.5rem", maxWidth: 580 }}>
+          {/* Badge */}
+          <span style={{
+            display: "inline-block", padding: "3px 12px", borderRadius: 999,
+            background: "var(--secondary-container)", color: "var(--on-secondary)",
+            fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.12em",
+            textTransform: "uppercase", marginBottom: "0.9rem",
+          }}>
+            Diamond Member
+          </span>
+          <h1 style={{
+            fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "2.2rem",
+            color: "#fff", lineHeight: 1.15, marginBottom: "0.5rem", letterSpacing: "-0.02em",
+          }}>
+            ברוך הבא,{" "}
+            <span style={{ color: "var(--primary)" }}>אלוף</span>
+          </h1>
+          <p style={{ color: "var(--on-surface-variant)", fontSize: "0.9rem", marginBottom: "1.75rem", maxWidth: 420 }}>
+            מונדיאל 2026 מתקרב — ניחשו תוצאות, צברו נקודות ותנצחו את החברים!
+          </p>
+
+          {/* Stats glass cards */}
+          <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+            <div className="glass-card" style={{ padding: "0.7rem 1.1rem", borderRadius: 16, display: "flex", alignItems: "center", gap: "0.65rem" }}>
+              <span className="material-symbols-outlined" style={{ color: "var(--secondary-container)", fontSize: 20 }}>payments</span>
+              <div>
+                <div style={{ fontSize: "0.58rem", color: "var(--on-surface-variant)", textTransform: "uppercase", letterSpacing: "0.1em" }}>משחקים</div>
+                <div style={{ fontFamily: "Montserrat,sans-serif", fontWeight: 700, fontSize: "1rem", color: "#fff" }}>{total}</div>
+              </div>
+            </div>
+            <div className="glass-card" style={{ padding: "0.7rem 1.1rem", borderRadius: 16, display: "flex", alignItems: "center", gap: "0.65rem" }}>
+              <span className="material-symbols-outlined" style={{ color: "var(--primary)", fontSize: 20 }}>trending_up</span>
+              <div>
+                <div style={{ fontSize: "0.58rem", color: "var(--on-surface-variant)", textTransform: "uppercase", letterSpacing: "0.1em" }}>הסתיימו</div>
+                <div style={{ fontFamily: "Montserrat,sans-serif", fontWeight: 700, fontSize: "1rem", color: "#fff" }}>{completed}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* CTA buttons */}
+          <div style={{ display: "flex", gap: "0.75rem", marginTop: "1.25rem" }}>
+            <Link href="/predictions" style={{
+              background: "var(--primary)", color: "var(--on-primary-container)",
+              fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "0.82rem",
+              padding: "10px 22px", borderRadius: 10, textDecoration: "none",
+              boxShadow: "0 0 20px rgba(92,222,151,0.3)", letterSpacing: "0.03em",
             }}>
-              <div style={{ fontSize: "1.6rem", fontWeight: 800, color, fontFamily: "Montserrat,sans-serif" }}>{val}</div>
-              <div style={{ fontSize: "0.75rem", color: "var(--muted)" }}>{label}</div>
+              הכנס ניחושים ←
+            </Link>
+            <Link href="/leaderboard" style={{
+              background: "rgba(255,255,255,0.07)", backdropFilter: "blur(10px)",
+              border: "1px solid rgba(255,255,255,0.12)", color: "var(--on-surface)",
+              fontWeight: 600, fontSize: "0.82rem",
+              padding: "10px 20px", borderRadius: 10, textDecoration: "none",
+            }}>
+              טבלת דירוג
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Scoring legend ── */}
+      <div style={{ display: "flex", gap: "1.25rem", marginBottom: "2rem", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.83rem", color: "var(--on-surface-variant)" }}>
+          <span style={{
+            background: "var(--primary)", color: "var(--on-primary-container)",
+            fontWeight: 800, borderRadius: 6, padding: "2px 9px", fontSize: "0.82rem",
+            fontFamily: "Montserrat,sans-serif",
+          }}>4</span>
+          נקודות לתוצאה מדויקת
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.83rem", color: "var(--on-surface-variant)" }}>
+          <span style={{
+            background: "rgba(96,165,250,0.85)", color: "#0a1832",
+            fontWeight: 800, borderRadius: 6, padding: "2px 9px", fontSize: "0.82rem",
+            fontFamily: "Montserrat,sans-serif",
+          }}>1</span>
+          נקודה לכיוון נכון
+        </div>
+      </div>
+
+      {/* ── Group Stage ── */}
+      <div style={{ marginBottom: "2.5rem" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "1rem" }}>
+          <div>
+            <h2 style={{
+              fontFamily: "Montserrat,sans-serif", fontWeight: 700, fontSize: "1.15rem",
+              color: "#fff", textTransform: "uppercase", letterSpacing: "0.04em",
+            }}>
+              שלב הבתים
+            </h2>
+            <p style={{ color: "var(--on-surface-variant)", fontSize: "0.82rem" }}>
+              12 בתים, 48 קבוצות
+            </p>
+          </div>
+          <Link href="/predictions" style={{ color: "var(--primary)", fontSize: "0.78rem", fontWeight: 600, textDecoration: "none" }}>
+            נחש עכשיו ←
+          </Link>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(310px, 1fr))", gap: "1rem" }}>
+          {Object.entries(byGroup).map(([groupName, gMatches]) => (
+            <div key={groupName} className="glass-card" style={{ borderRadius: 20, overflow: "hidden" }}>
+              {/* Group header */}
+              <div style={{
+                padding: "0.6rem 1rem",
+                background: "linear-gradient(90deg, rgba(92,222,151,0.1) 0%, transparent 100%)",
+                borderBottom: "1px solid rgba(255,255,255,0.06)",
+                fontFamily: "Montserrat,sans-serif", fontWeight: 700, fontSize: "0.8rem",
+                color: "var(--primary)", letterSpacing: "0.06em",
+              }}>
+                בית {groupName}
+              </div>
+
+              {gMatches.map((m, idx) => (
+                <div key={m.id} style={{
+                  padding: "0.6rem 1rem",
+                  borderBottom: idx < gMatches.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
+                  display: "flex", alignItems: "center", gap: "0.5rem",
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flex: 1 }}>
+                    <span style={{ fontSize: "1.05rem" }}>{m.home_flag}</span>
+                    <span style={{ fontSize: "0.78rem", color: "var(--on-surface)", fontWeight: 500 }}>{m.home_team}</span>
+                  </div>
+                  <div style={{ textAlign: "center", minWidth: 76 }}>
+                    {m.home_score !== null ? (
+                      <span style={{
+                        background: "rgba(92,222,151,0.12)", borderRadius: 6,
+                        padding: "2px 10px", fontWeight: 700, fontSize: "0.9rem", color: "var(--primary)",
+                        fontFamily: "Montserrat,sans-serif",
+                      }}>
+                        {m.home_score} : {m.away_score}
+                      </span>
+                    ) : (
+                      <div>
+                        <div style={{ color: "var(--outline-variant)", fontSize: "0.64rem", fontWeight: 600 }}>vs</div>
+                        <div style={{ color: "var(--on-surface-variant)", fontSize: "0.62rem" }}>{formatDate(m.match_date)}</div>
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flex: 1, justifyContent: "flex-end" }}>
+                    <span style={{ fontSize: "0.78rem", color: "var(--on-surface)", fontWeight: 500 }}>{m.away_team}</span>
+                    <span style={{ fontSize: "1.05rem" }}>{m.away_flag}</span>
+                  </div>
+                </div>
+              ))}
             </div>
           ))}
         </div>
-
-        {/* Scoring legend */}
-        <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap", marginBottom: "1.5rem" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.85rem" }}>
-            <span style={{ background: "var(--green)", color: "#0d1a10", fontWeight: 800, borderRadius: 6, padding: "1px 8px", fontSize: "0.85rem" }}>4</span>
-            <span style={{ color: "var(--muted)" }}>נקודות לתוצאה מדויקת</span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.85rem" }}>
-            <span style={{ background: "var(--blue)", color: "#0d1a10", fontWeight: 800, borderRadius: 6, padding: "1px 8px", fontSize: "0.85rem" }}>1</span>
-            <span style={{ color: "var(--muted)" }}>נקודה לכיוון נכון</span>
-          </div>
-        </div>
-
-        {/* CTAs */}
-        <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
-          <Link href="/predictions" style={{
-            background: "var(--green)", color: "#0d1a10", fontWeight: 700,
-            borderRadius: 10, padding: "10px 22px", textDecoration: "none", fontSize: "0.9rem",
-            display: "inline-flex", alignItems: "center", gap: "0.4rem",
-          }}>
-            הכנס ניחושים ←
-          </Link>
-          <Link href="/leaderboard" style={{
-            border: "1px solid var(--green-border)", color: "var(--green)",
-            borderRadius: 10, padding: "10px 22px", textDecoration: "none", fontSize: "0.9rem",
-          }}>
-            טבלת דירוג
-          </Link>
-        </div>
       </div>
 
-      {/* Group Stage */}
-      <h2 style={{ fontFamily: "Montserrat,sans-serif", fontWeight: 700, fontSize: "1.1rem", color: "var(--muted)", marginBottom: "1rem", letterSpacing: "0.04em", textTransform: "uppercase" }}>
-        שלב הבתים
-      </h2>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "1rem", marginBottom: "2.5rem" }}>
-        {Object.entries(byGroup).map(([groupName, gMatches]) => (
-          <div key={groupName} style={{
-            background: "var(--surface)", border: "1px solid var(--border)",
-            borderRadius: 14, overflow: "hidden",
-          }}>
-            <div style={{
-              background: "linear-gradient(90deg, rgba(74,222,128,0.12) 0%, transparent 100%)",
-              padding: "0.55rem 1rem",
-              fontFamily: "Montserrat,sans-serif", fontWeight: 700, fontSize: "0.85rem",
-              color: "var(--green)", borderBottom: "1px solid var(--border)",
-            }}>
-              בית {groupName}
-            </div>
-            {gMatches.map((m) => (
-              <div key={m.id} style={{
-                padding: "0.6rem 1rem", borderBottom: "1px solid rgba(255,255,255,0.04)",
-                display: "flex", alignItems: "center", gap: "0.5rem",
-              }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flex: 1 }}>
-                  <span style={{ fontSize: "1.1rem" }}>{m.home_flag}</span>
-                  <span style={{ fontSize: "0.8rem", color: "var(--text)" }}>{m.home_team}</span>
-                </div>
-                <div style={{ textAlign: "center", minWidth: "80px" }}>
-                  {m.home_score !== null ? (
-                    <span style={{
-                      background: "rgba(74,222,128,0.15)", borderRadius: 6,
-                      padding: "2px 10px", fontWeight: 700, fontSize: "0.95rem", color: "var(--green)",
-                    }}>
-                      {m.home_score} : {m.away_score}
-                    </span>
-                  ) : (
-                    <div>
-                      <div style={{ color: "var(--muted)", fontSize: "0.68rem" }}>vs</div>
-                      <div style={{ color: "var(--muted)", fontSize: "0.65rem" }}>{formatDate(m.match_date)}</div>
-                    </div>
-                  )}
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flex: 1, justifyContent: "flex-end" }}>
-                  <span style={{ fontSize: "0.8rem", color: "var(--text)" }}>{m.away_team}</span>
-                  <span style={{ fontSize: "1.1rem" }}>{m.away_flag}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
-
-      {/* Knockout Stages */}
+      {/* ── Knockout Stages ── */}
       {(["r32", "r16", "qf", "sf", "3rd", "final"] as Stage[]).map((stage) => {
         const stageMatches = byStage[stage];
         if (!stageMatches?.length) return null;
         return (
           <div key={stage} style={{ marginBottom: "2rem" }}>
             <h2 style={{
-              fontFamily: "Montserrat,sans-serif", fontWeight: 700, fontSize: "1.1rem",
-              color: "var(--muted)", marginBottom: "0.75rem",
-              letterSpacing: "0.04em", textTransform: "uppercase",
+              fontFamily: "Montserrat,sans-serif", fontWeight: 700, fontSize: "1.05rem",
+              color: "#fff", marginBottom: "0.75rem",
+              textTransform: "uppercase", letterSpacing: "0.06em",
             }}>
               {STAGE_LABELS[stage]}
             </h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "0.6rem" }}>
               {stageMatches.map((m) => (
-                <div key={m.id} style={{
-                  background: "var(--surface)", border: "1px solid var(--border)",
-                  borderRadius: 12, padding: "0.75rem 1rem",
+                <div key={m.id} className="glass-card" style={{
+                  borderRadius: 14, padding: "0.8rem 1rem",
                   display: "flex", alignItems: "center", justifyContent: "space-between",
                 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
                     <span style={{ fontSize: "1.1rem" }}>{m.home_flag}</span>
-                    <span style={{ fontSize: "0.82rem" }}>{m.home_team}</span>
+                    <span style={{ fontSize: "0.82rem", color: "var(--on-surface)" }}>{m.home_team}</span>
                   </div>
                   <div style={{ padding: "0 0.5rem", textAlign: "center" }}>
                     {m.home_score !== null ? (
-                      <span style={{ fontWeight: 700, color: "var(--green)", fontSize: "0.95rem" }}>
+                      <span style={{ fontWeight: 700, color: "var(--primary)", fontFamily: "Montserrat,sans-serif" }}>
                         {m.home_score}:{m.away_score}
                       </span>
                     ) : (
-                      <span style={{ color: "var(--muted)", fontSize: "0.72rem" }}>
+                      <span style={{ color: "var(--on-surface-variant)", fontSize: "0.7rem" }}>
                         {m.home_team === "TBD" ? "ממתין" : formatDate(m.match_date)}
                       </span>
                     )}
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                    <span style={{ fontSize: "0.82rem" }}>{m.away_team}</span>
+                    <span style={{ fontSize: "0.82rem", color: "var(--on-surface)" }}>{m.away_team}</span>
                     <span style={{ fontSize: "1.1rem" }}>{m.away_flag}</span>
                   </div>
                 </div>

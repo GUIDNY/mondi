@@ -24,36 +24,23 @@ export default function LoginPage() {
         tab === "login"
           ? { email: form.email, password: form.password }
           : { username: form.username, email: form.email, password: form.password };
-
       const res = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
       const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || "שגיאה");
-      } else {
-        router.push("/predictions");
-        router.refresh();
-      }
-    } catch {
-      setError("שגיאת רשת");
-    } finally {
-      setLoading(false);
-    }
+      if (!res.ok) setError(data.error || "שגיאה");
+      else { router.push("/predictions"); router.refresh(); }
+    } catch { setError("שגיאת רשת"); }
+    finally { setLoading(false); }
   }
 
   const inputStyle: React.CSSProperties = {
-    width: "100%",
-    padding: "0.7rem 1rem",
-    borderRadius: 10,
-    border: "1px solid var(--border)",
+    width: "100%", padding: "0.75rem 1rem", borderRadius: 10,
+    border: "1px solid rgba(61,74,64,0.5)",
     background: "rgba(255,255,255,0.03)",
-    color: "var(--text)",
-    fontSize: "0.95rem",
-    outline: "none",
-    fontFamily: "inherit",
+    color: "var(--on-surface)", fontSize: "0.9rem", outline: "none",
+    fontFamily: "inherit", transition: "border-color 0.15s",
   };
 
   return (
@@ -62,39 +49,32 @@ export default function LoginPage() {
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: "2rem" }}>
           <div style={{
-            width: 56, height: 56, borderRadius: 14,
-            background: "linear-gradient(135deg,#4ade80,#22c55e)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: "1.7rem", margin: "0 auto 0.75rem",
-          }}>⚽</div>
-          <h1 style={{ fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "1.4rem", color: "var(--text)", marginBottom: "0.25rem" }}>
-            מונדיאל 2026
-          </h1>
-          <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>ניחושי תוצאות לחברים</p>
+            fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "1.6rem",
+            color: "var(--primary)", letterSpacing: "-0.02em", marginBottom: "0.35rem",
+          }}>
+            STADIUM ELITE
+          </div>
+          <p style={{ color: "var(--on-surface-variant)", fontSize: "0.82rem" }}>
+            ניחושי תוצאות מונדיאל 2026
+          </p>
         </div>
 
         {/* Card */}
-        <div style={{
-          background: "var(--surface)", border: "1px solid var(--border)",
-          borderRadius: 18, padding: "1.75rem",
-        }}>
+        <div className="glass-card" style={{ borderRadius: 20, padding: "1.75rem" }}>
           {/* Tabs */}
           <div style={{
             display: "flex", background: "rgba(255,255,255,0.04)",
             borderRadius: 10, padding: 4, marginBottom: "1.5rem",
           }}>
             {(["login", "register"] as const).map((t) => (
-              <button
-                key={t}
-                onClick={() => { setTab(t); setError(""); }}
-                style={{
-                  flex: 1, padding: "0.55rem", border: "none", cursor: "pointer",
-                  borderRadius: 8, fontWeight: 600, fontSize: "0.9rem",
-                  background: tab === t ? "var(--green)" : "transparent",
-                  color: tab === t ? "#0d1a10" : "var(--muted)",
-                  fontFamily: "inherit", transition: "all 0.15s",
-                }}
-              >
+              <button key={t} onClick={() => { setTab(t); setError(""); }} style={{
+                flex: 1, padding: "0.6rem", border: "none", cursor: "pointer",
+                borderRadius: 8, fontFamily: "Montserrat,sans-serif", fontWeight: 700,
+                fontSize: "0.85rem", letterSpacing: "0.02em",
+                background: tab === t ? "var(--primary)" : "transparent",
+                color: tab === t ? "var(--on-primary-container)" : "var(--on-surface-variant)",
+                transition: "all 0.15s",
+              }}>
                 {t === "login" ? "כניסה" : "הרשמה"}
               </button>
             ))}
@@ -103,73 +83,51 @@ export default function LoginPage() {
           <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             {tab === "register" && (
               <div>
-                <label style={{ display: "block", marginBottom: "0.4rem", color: "var(--muted)", fontSize: "0.82rem", fontWeight: 500 }}>
+                <label style={{ display: "block", marginBottom: "0.35rem", color: "var(--on-surface-variant)", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                   שם משתמש
                 </label>
-                <input
-                  style={inputStyle}
-                  type="text"
-                  placeholder="הכנס שם משתמש"
-                  value={form.username}
-                  onChange={(e) => set("username", e.target.value)}
-                  required
-                />
+                <input style={inputStyle} type="text" placeholder="הכנס שם משתמש"
+                  value={form.username} onChange={(e) => set("username", e.target.value)} required />
               </div>
             )}
             <div>
-              <label style={{ display: "block", marginBottom: "0.4rem", color: "var(--muted)", fontSize: "0.82rem", fontWeight: 500 }}>
+              <label style={{ display: "block", marginBottom: "0.35rem", color: "var(--on-surface-variant)", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                 אימייל
               </label>
-              <input
-                style={inputStyle}
-                type="email"
-                placeholder="הכנס אימייל"
-                value={form.email}
-                onChange={(e) => set("email", e.target.value)}
-                required
-              />
+              <input style={inputStyle} type="email" placeholder="your@email.com"
+                value={form.email} onChange={(e) => set("email", e.target.value)} required />
             </div>
             <div>
-              <label style={{ display: "block", marginBottom: "0.4rem", color: "var(--muted)", fontSize: "0.82rem", fontWeight: 500 }}>
+              <label style={{ display: "block", marginBottom: "0.35rem", color: "var(--on-surface-variant)", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                 סיסמה
               </label>
-              <input
-                style={inputStyle}
-                type="password"
-                placeholder="הכנס סיסמה"
-                value={form.password}
-                onChange={(e) => set("password", e.target.value)}
-                required
-              />
+              <input style={inputStyle} type="password" placeholder="••••••••"
+                value={form.password} onChange={(e) => set("password", e.target.value)} required />
             </div>
 
             {error && (
               <div style={{
                 background: "rgba(248,113,113,0.1)", border: "1px solid rgba(248,113,113,0.3)",
-                borderRadius: 10, padding: "0.65rem 1rem",
-                color: "var(--red)", fontSize: "0.88rem",
+                borderRadius: 10, padding: "0.65rem 1rem", color: "#f87171", fontSize: "0.85rem",
               }}>
                 {error}
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              style={{
-                background: "var(--green)", color: "#0d1a10", fontWeight: 700,
-                fontSize: "0.95rem", border: "none", borderRadius: 10, padding: "0.75rem",
-                cursor: loading ? "not-allowed" : "pointer",
-                opacity: loading ? 0.7 : 1, marginTop: "0.25rem",
-                fontFamily: "inherit",
-              }}
-            >
+            <button type="submit" disabled={loading} style={{
+              background: "var(--primary)", color: "var(--on-primary-container)",
+              fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "0.9rem",
+              letterSpacing: "0.04em", border: "none", borderRadius: 10, padding: "0.85rem",
+              cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1,
+              marginTop: "0.5rem", boxShadow: "0 0 20px rgba(92,222,151,0.25)",
+              transition: "opacity 0.15s",
+            }}>
               {loading ? "טוען..." : tab === "login" ? "כניסה" : "הרשמה"}
             </button>
 
             {tab === "register" && (
-              <p style={{ color: "var(--muted)", fontSize: "0.75rem", textAlign: "center", margin: 0 }}>
-                המשתמש הראשון שנרשם יהיה מנהל
+              <p style={{ color: "var(--on-surface-variant)", fontSize: "0.72rem", textAlign: "center" }}>
+                המשתמש הראשון שנרשם יהיה מנהל האתר
               </p>
             )}
           </form>
