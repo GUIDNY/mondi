@@ -22,6 +22,13 @@ function formatDate(d: string | null) {
   return new Date(d).toLocaleDateString("he-IL", { day: "numeric", month: "short" });
 }
 
+const scoreInputStyle: React.CSSProperties = {
+  width: 46, textAlign: "center", padding: "6px 4px",
+  background: "rgba(255,255,255,0.05)", border: "1px solid var(--border)",
+  borderRadius: 8, color: "var(--text)", fontSize: "1.05rem", fontWeight: 700,
+  fontFamily: "inherit", outline: "none",
+};
+
 export default function AdminPage() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [drafts, setDrafts] = useState<Record<number, { home: string; away: string }>>({});
@@ -59,7 +66,7 @@ export default function AdminPage() {
       const data = await res.json();
       if (res.ok) {
         setSaved((s) => ({ ...s, [matchId]: true }));
-        setStatus(`✓ תוצאה נשמרה! עודכנו ${data.updatedPredictions} ניחושים`);
+        setStatus(`עודכן! ${data.updatedPredictions} ניחושים חושבו מחדש`);
         setTimeout(() => setSaved((s) => ({ ...s, [matchId]: false })), 2500);
         load();
       } else {
@@ -70,10 +77,7 @@ export default function AdminPage() {
     }
   }
 
-  const displayMatches = matches.filter((m) => {
-    if (filterStage === "all") return true;
-    return m.stage === filterStage;
-  });
+  const displayMatches = matches.filter((m) => filterStage === "all" || m.stage === filterStage);
 
   const byStage: Record<string, Match[]> = {};
   for (const m of displayMatches) {
@@ -83,55 +87,73 @@ export default function AdminPage() {
 
   const completedCount = matches.filter((m) => m.home_score !== null).length;
 
-  return (
-    <div style={{ maxWidth: "900px", margin: "0 auto", padding: "2rem 1rem" }}>
-      <h1 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#ef4444", marginBottom: "0.25rem" }}>
-        ניהול תוצאות
-      </h1>
-      <p style={{ color: "#94a3b8", marginBottom: "1.5rem" }}>
-        {completedCount} / {matches.length} משחקים הוזנו · רק מנהל יכול לראות דף זה
-      </p>
+  const filterBtnStyle = (active: boolean, danger = false): React.CSSProperties => ({
+    padding: "5px 13px", borderRadius: 20, border: "1px solid",
+    borderColor: active ? (danger ? "rgba(248,113,113,0.5)" : "var(--green-border)") : "var(--border)",
+    background: active ? (danger ? "rgba(248,113,113,0.12)" : "var(--green-dim)") : "transparent",
+    color: active ? (danger ? "var(--red)" : "var(--green)") : "var(--muted)",
+    cursor: "pointer", fontSize: "0.82rem", fontFamily: "inherit",
+  });
 
+  return (
+    <div>
+      {/* Header */}
+      <div style={{ marginBottom: "1.5rem" }}>
+        <h1 style={{ fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "1.8rem", color: "var(--text)", marginBottom: "0.25rem" }}>
+          ניהול תוצאות
+        </h1>
+        <p style={{ color: "var(--muted)", fontSize: "0.88rem" }}>
+          {completedCount} / {matches.length} משחקים הוזנו · רק מנהל יכול לראות דף זה
+        </p>
+      </div>
+
+      {/* Progress */}
+      {matches.length > 0 && (
+        <div style={{ background: "var(--surface)", borderRadius: 8, height: 6, marginBottom: "1.5rem", overflow: "hidden" }}>
+          <div style={{
+            height: "100%", borderRadius: 8,
+            background: "linear-gradient(90deg, #f87171, #ef4444)",
+            width: `${Math.round((completedCount / matches.length) * 100)}%`,
+          }} />
+        </div>
+      )}
+
+      {/* Status banner */}
       {status && (
         <div style={{
-          background: status.startsWith("✓") ? "#052e16" : "#450a0a",
-          border: `1px solid ${status.startsWith("✓") ? "#16a34a" : "#ef4444"}`,
-          borderRadius: "8px", padding: "0.6rem 1rem", marginBottom: "1rem",
-          color: status.startsWith("✓") ? "#86efac" : "#fca5a5", fontSize: "0.9rem"
+          background: status.startsWith("שגיאה") ? "rgba(248,113,113,0.1)" : "rgba(74,222,128,0.1)",
+          border: `1px solid ${status.startsWith("שגיאה") ? "rgba(248,113,113,0.3)" : "rgba(74,222,128,0.3)"}`,
+          borderRadius: 10, padding: "0.65rem 1rem", marginBottom: "1rem",
+          color: status.startsWith("שגיאה") ? "var(--red)" : "var(--green)", fontSize: "0.88rem",
         }}>
           {status}
         </div>
       )}
 
       {/* Stage filter */}
-      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: "1.5rem" }}>
-        <button onClick={() => setFilterStage("all")} style={{
-          padding: "5px 14px", borderRadius: "20px", border: "1px solid",
-          borderColor: filterStage === "all" ? "#ef4444" : "#334155",
-          background: filterStage === "all" ? "#ef4444" : "transparent",
-          color: filterStage === "all" ? "#fff" : "#94a3b8",
-          cursor: "pointer", fontSize: "0.85rem"
-        }}>הכל</button>
+      <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "1.5rem" }}>
+        <button style={filterBtnStyle(filterStage === "all", true)} onClick={() => setFilterStage("all")}>הכל</button>
         {STAGE_ORDER.map((s) => (
-          <button key={s} onClick={() => setFilterStage(s)} style={{
-            padding: "5px 14px", borderRadius: "20px", border: "1px solid",
-            borderColor: filterStage === s ? "#ef4444" : "#334155",
-            background: filterStage === s ? "#ef4444" : "transparent",
-            color: filterStage === s ? "#fff" : "#94a3b8",
-            cursor: "pointer", fontSize: "0.85rem"
-          }}>{STAGE_LABELS[s as keyof typeof STAGE_LABELS]}</button>
+          <button key={s} style={filterBtnStyle(filterStage === s, true)} onClick={() => setFilterStage(s)}>
+            {STAGE_LABELS[s as keyof typeof STAGE_LABELS]}
+          </button>
         ))}
       </div>
 
+      {/* Match list */}
       {STAGE_ORDER.map((stage) => {
         const stageMatches = byStage[stage];
         if (!stageMatches?.length) return null;
         return (
           <div key={stage} style={{ marginBottom: "2rem" }}>
-            <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "#64748b", marginBottom: "0.75rem", letterSpacing: "0.05em" }}>
+            <h2 style={{
+              fontFamily: "Montserrat,sans-serif", fontWeight: 700, fontSize: "0.82rem",
+              color: "var(--muted)", marginBottom: "0.65rem",
+              textTransform: "uppercase", letterSpacing: "0.07em",
+            }}>
               {STAGE_LABELS[stage as keyof typeof STAGE_LABELS]}
             </h2>
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
               {stageMatches.map((m) => {
                 const draft = drafts[m.id] || { home: "", away: "" };
                 const isSaving = saving[m.id];
@@ -140,20 +162,20 @@ export default function AdminPage() {
 
                 return (
                   <div key={m.id} style={{
-                    background: "#1e293b", borderRadius: "10px",
-                    border: `1px solid ${hasResult ? "#16a34a44" : "#334155"}`,
-                    padding: "0.75rem 1rem",
-                    display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap"
+                    background: "var(--surface)",
+                    border: `1px solid ${hasResult ? "rgba(74,222,128,0.2)" : "var(--border)"}`,
+                    borderRadius: 12, padding: "0.75rem 1rem",
+                    display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap",
                   }}>
                     {/* Date */}
-                    <div style={{ color: "#475569", fontSize: "0.75rem", minWidth: "50px" }}>
+                    <div style={{ color: "var(--muted)", fontSize: "0.72rem", minWidth: 46 }}>
                       {formatDate(m.match_date)}
                     </div>
 
-                    {/* Teams */}
-                    <div style={{ flex: 1, display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                      <span>{m.home_flag}</span>
-                      <span style={{ fontSize: "0.9rem", fontWeight: 600 }}>{m.home_team}</span>
+                    {/* Home team */}
+                    <div style={{ flex: 1, display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                      <span style={{ fontSize: "1.1rem" }}>{m.home_flag}</span>
+                      <span style={{ fontSize: "0.87rem", fontWeight: 600 }}>{m.home_team}</span>
                     </div>
 
                     {/* Score inputs */}
@@ -162,31 +184,25 @@ export default function AdminPage() {
                         type="number" min={0} max={30}
                         value={draft.home}
                         onChange={(e) => setDrafts((d) => ({ ...d, [m.id]: { ...d[m.id], home: e.target.value } }))}
-                        style={{
-                          width: "48px", textAlign: "center", padding: "6px",
-                          background: "#0f172a", border: "1px solid #475569",
-                          borderRadius: "6px", color: "#f1f5f9", fontSize: "1.1rem", fontWeight: 700
-                        }}
+                        style={scoreInputStyle}
                       />
-                      <span style={{ color: "#475569" }}>:</span>
+                      <span style={{ color: "var(--muted)", fontWeight: 700 }}>:</span>
                       <input
                         type="number" min={0} max={30}
                         value={draft.away}
                         onChange={(e) => setDrafts((d) => ({ ...d, [m.id]: { ...d[m.id], away: e.target.value } }))}
-                        style={{
-                          width: "48px", textAlign: "center", padding: "6px",
-                          background: "#0f172a", border: "1px solid #475569",
-                          borderRadius: "6px", color: "#f1f5f9", fontSize: "1.1rem", fontWeight: 700
-                        }}
+                        style={scoreInputStyle}
                       />
                       <button
                         onClick={() => saveResult(m.id)}
                         disabled={isSaving || draft.home === "" || draft.away === ""}
                         style={{
-                          background: justSaved ? "#16a34a" : hasResult ? "#7c3aed" : "#ef4444",
-                          color: "#fff", border: "none", borderRadius: "6px",
-                          padding: "6px 14px", fontWeight: 700, cursor: "pointer",
-                          fontSize: "0.85rem", opacity: (draft.home === "" || draft.away === "") ? 0.4 : 1
+                          background: justSaved ? "#16a34a" : hasResult ? "rgba(74,222,128,0.2)" : "rgba(248,113,113,0.2)",
+                          color: justSaved ? "#fff" : hasResult ? "var(--green)" : "var(--red)",
+                          border: `1px solid ${hasResult ? "var(--green-border)" : "rgba(248,113,113,0.3)"}`,
+                          borderRadius: 8, padding: "6px 13px", fontWeight: 700, cursor: "pointer",
+                          fontSize: "0.82rem", fontFamily: "inherit",
+                          opacity: draft.home === "" || draft.away === "" ? 0.35 : 1,
                         }}
                       >
                         {justSaved ? "✓" : isSaving ? "..." : hasResult ? "עדכן" : "שמור"}
@@ -194,16 +210,16 @@ export default function AdminPage() {
                     </div>
 
                     {/* Away team */}
-                    <div style={{ flex: 1, display: "flex", alignItems: "center", gap: "0.5rem", justifyContent: "flex-end" }}>
-                      <span style={{ fontSize: "0.9rem", fontWeight: 600 }}>{m.away_team}</span>
-                      <span>{m.away_flag}</span>
+                    <div style={{ flex: 1, display: "flex", alignItems: "center", gap: "0.4rem", justifyContent: "flex-end" }}>
+                      <span style={{ fontSize: "0.87rem", fontWeight: 600 }}>{m.away_team}</span>
+                      <span style={{ fontSize: "1.1rem" }}>{m.away_flag}</span>
                     </div>
 
-                    {/* Current result badge */}
+                    {/* Result badge */}
                     {hasResult && (
                       <div style={{
-                        background: "#052e16", border: "1px solid #16a34a", borderRadius: "6px",
-                        padding: "2px 10px", color: "#86efac", fontSize: "0.85rem", fontWeight: 700
+                        background: "rgba(74,222,128,0.1)", border: "1px solid rgba(74,222,128,0.25)",
+                        borderRadius: 6, padding: "2px 10px", color: "var(--green)", fontSize: "0.85rem", fontWeight: 700,
                       }}>
                         {m.home_score}:{m.away_score}
                       </div>

@@ -3,19 +3,30 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 
 export const metadata: Metadata = {
-  title: "מונדיאל 2026 - הימורים",
-  description: "אתר הימורים לתוצאות מונדיאל 2026",
+  title: "מונדיאל 2026",
+  description: "אתר ניחושים למונדיאל 2026",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="he" dir="rtl">
-      <body className="min-h-screen flex flex-col" style={{ backgroundColor: "#0f172a", color: "#f1f5f9" }}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&display=swap"
+          rel="stylesheet"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
+          rel="stylesheet"
+        />
+      </head>
+      <body>
         <Navbar />
-        <main className="flex-1">{children}</main>
-        <footer className="text-center py-4" style={{ color: "#64748b", fontSize: "0.8rem" }}>
-          מונדיאל 2026 🏆 ארה&quot;ב · מקסיקו · קנדה
-        </footer>
+        <div className="page-layout">
+          <div className="page-inner">{children}</div>
+        </div>
       </body>
     </html>
   );

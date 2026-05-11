@@ -36,6 +36,20 @@ function isLocked(match: Match) {
   return new Date(match.match_date) <= new Date();
 }
 
+function pointsBadge(pts: number | null | undefined) {
+  if (pts === 4) return { text: "✓✓ 4", bg: "rgba(74,222,128,0.15)", color: "#4ade80" };
+  if (pts === 1) return { text: "✓ 1", bg: "rgba(96,165,250,0.15)", color: "#60a5fa" };
+  if (pts === 0) return { text: "✗ 0", bg: "rgba(248,113,113,0.15)", color: "#f87171" };
+  return null;
+}
+
+const scoreInputStyle: React.CSSProperties = {
+  width: 46, textAlign: "center", padding: "6px 4px",
+  background: "rgba(255,255,255,0.05)", border: "1px solid var(--border)",
+  borderRadius: 8, color: "var(--text)", fontSize: "1.05rem", fontWeight: 700,
+  fontFamily: "inherit", outline: "none",
+};
+
 export default function PredictionsPage() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [predictions, setPredictions] = useState<Record<number, Prediction>>({});
@@ -46,13 +60,9 @@ export default function PredictionsPage() {
   const [activeGroup, setActiveGroup] = useState<string>("all");
 
   const load = useCallback(async () => {
-    const [mRes, pRes] = await Promise.all([
-      fetch("/api/matches"),
-      fetch("/api/predictions"),
-    ]);
+    const [mRes, pRes] = await Promise.all([fetch("/api/matches"), fetch("/api/predictions")]);
     const mData: Match[] = await mRes.json();
     const pData: Prediction[] = await pRes.json();
-
     setMatches(mData);
     const predMap: Record<number, Prediction> = {};
     const draftMap: Record<number, { home: string; away: string }> = {};
@@ -105,113 +115,125 @@ export default function PredictionsPage() {
   }
 
   const totalPredicted = Object.keys(predictions).length;
-  const totalAvailable = matches.filter((m) => m.home_team !== "TBD" && !isLocked(m)).length + Object.keys(predictions).length;
+  const totalAvailable =
+    matches.filter((m) => m.home_team !== "TBD" && !isLocked(m)).length + Object.keys(predictions).length;
 
-  function pointsColor(pts: number | null | undefined) {
-    if (pts === 4) return "#f59e0b";
-    if (pts === 1) return "#60a5fa";
-    if (pts === 0) return "#ef4444";
-    return "#94a3b8";
-  }
+  const filterBtnStyle = (active: boolean): React.CSSProperties => ({
+    padding: "5px 14px", borderRadius: 20, border: "1px solid",
+    borderColor: active ? "var(--green)" : "var(--border)",
+    background: active ? "var(--green-dim)" : "transparent",
+    color: active ? "var(--green)" : "var(--muted)",
+    cursor: "pointer", fontSize: "0.82rem", fontWeight: active ? 600 : 400,
+    fontFamily: "inherit",
+  });
+
+  const groupBtnStyle = (active: boolean): React.CSSProperties => ({
+    padding: "5px 12px", borderRadius: 20, border: "1px solid",
+    borderColor: active ? "rgba(96,165,250,0.5)" : "var(--border)",
+    background: active ? "rgba(96,165,250,0.12)" : "transparent",
+    color: active ? "#60a5fa" : "var(--muted)",
+    cursor: "pointer", fontSize: "0.82rem",
+    fontFamily: "inherit",
+  });
 
   return (
-    <div style={{ maxWidth: "900px", margin: "0 auto", padding: "2rem 1rem" }}>
-      <h1 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#f59e0b", marginBottom: "0.5rem" }}>
-        הניחושים שלי
-      </h1>
-      <p style={{ color: "#94a3b8", marginBottom: "1.5rem" }}>
-        ניחשת {totalPredicted} משחקים מתוך {totalAvailable} אפשריים
-      </p>
+    <div>
+      {/* Header */}
+      <div style={{ marginBottom: "1.5rem" }}>
+        <h1 style={{ fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "1.8rem", color: "var(--text)", marginBottom: "0.25rem" }}>
+          הניחושים שלי
+        </h1>
+        <p style={{ color: "var(--muted)", fontSize: "0.88rem" }}>
+          ניחשת {totalPredicted} משחקים מתוך {totalAvailable} אפשריים
+        </p>
+      </div>
+
+      {/* Progress bar */}
+      {totalAvailable > 0 && (
+        <div style={{ background: "var(--surface)", borderRadius: 8, height: 6, marginBottom: "1.5rem", overflow: "hidden" }}>
+          <div style={{
+            height: "100%", borderRadius: 8,
+            background: "linear-gradient(90deg, #4ade80, #22c55e)",
+            width: `${Math.round((totalPredicted / totalAvailable) * 100)}%`,
+            transition: "width 0.4s",
+          }} />
+        </div>
+      )}
 
       {/* Filters */}
-      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: "1rem" }}>
-        {(["all", "pending", "done"] as const).map((f) => (
-          <button key={f} onClick={() => setFilter(f)} style={{
-            padding: "5px 14px", borderRadius: "20px", border: "1px solid",
-            borderColor: filter === f ? "#f59e0b" : "#334155",
-            background: filter === f ? "#f59e0b" : "transparent",
-            color: filter === f ? "#0f172a" : "#94a3b8",
-            cursor: "pointer", fontSize: "0.85rem", fontWeight: 600
-          }}>
-            {f === "all" ? "הכל" : f === "pending" ? "חסרים" : "הושלמו"}
-          </button>
-        ))}
-        <div style={{ width: "1px", background: "#334155" }} />
-        <button onClick={() => setActiveGroup("all")} style={{
-          padding: "5px 14px", borderRadius: "20px", border: "1px solid",
-          borderColor: activeGroup === "all" ? "#60a5fa" : "#334155",
-          background: activeGroup === "all" ? "#1d4ed8" : "transparent",
-          color: activeGroup === "all" ? "#fff" : "#94a3b8",
-          cursor: "pointer", fontSize: "0.85rem"
-        }}>כל הבתים</button>
+      <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "1.25rem", alignItems: "center" }}>
+        <button style={filterBtnStyle(filter === "all")} onClick={() => setFilter("all")}>הכל</button>
+        <button style={filterBtnStyle(filter === "pending")} onClick={() => setFilter("pending")}>חסרים</button>
+        <button style={filterBtnStyle(filter === "done")} onClick={() => setFilter("done")}>הושלמו</button>
+        <div style={{ width: 1, height: 20, background: "var(--border)", margin: "0 0.25rem" }} />
+        <button style={groupBtnStyle(activeGroup === "all")} onClick={() => setActiveGroup("all")}>כל הבתים</button>
         {groups.map((g) => (
-          <button key={g} onClick={() => setActiveGroup(g)} style={{
-            padding: "5px 12px", borderRadius: "20px", border: "1px solid",
-            borderColor: activeGroup === g ? "#60a5fa" : "#334155",
-            background: activeGroup === g ? "#1d4ed8" : "transparent",
-            color: activeGroup === g ? "#fff" : "#94a3b8",
-            cursor: "pointer", fontSize: "0.85rem"
-          }}>בית {g}</button>
+          <button key={g} style={groupBtnStyle(activeGroup === g)} onClick={() => setActiveGroup(g)}>
+            בית {g}
+          </button>
         ))}
       </div>
 
-      {/* Match list by stage */}
+      {/* Match list */}
       {STAGE_ORDER.map((stage) => {
         const stageMatches = byStage[stage];
         if (!stageMatches?.length) return null;
         return (
           <div key={stage} style={{ marginBottom: "2rem" }}>
-            <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "#64748b", marginBottom: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            <h2 style={{
+              fontFamily: "Montserrat,sans-serif", fontWeight: 700, fontSize: "0.82rem",
+              color: "var(--muted)", marginBottom: "0.65rem",
+              textTransform: "uppercase", letterSpacing: "0.07em",
+            }}>
               {STAGE_LABELS[stage]}
               {stage === "group" && activeGroup !== "all" && ` — בית ${activeGroup}`}
             </h2>
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
               {stageMatches.map((m) => {
                 const pred = predictions[m.id];
                 const draft = drafts[m.id] || { home: "", away: "" };
                 const locked = isLocked(m);
                 const isSaving = saving[m.id];
                 const justSaved = saved[m.id];
+                const badge = pred ? pointsBadge(pred.points) : null;
 
                 return (
                   <div key={m.id} style={{
-                    background: "#1e293b", borderRadius: "12px",
-                    border: `1px solid ${pred ? "#1d4ed8" : "#334155"}`,
-                    padding: "0.75rem 1rem",
-                    display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap"
+                    background: "var(--surface)",
+                    border: `1px solid ${pred ? "var(--green-border)" : "var(--border)"}`,
+                    borderRadius: 12, padding: "0.75rem 1rem",
+                    display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap",
                   }}>
-                    {/* Home team */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flex: 1, minWidth: "120px" }}>
+                    {/* Home */}
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flex: 1, minWidth: 110 }}>
                       <span style={{ fontSize: "1.2rem" }}>{m.home_flag}</span>
-                      <span style={{ fontWeight: 600, fontSize: "0.9rem" }}>{m.home_team}</span>
+                      <span style={{ fontWeight: 600, fontSize: "0.87rem" }}>{m.home_team}</span>
                     </div>
 
-                    {/* Score input or result */}
+                    {/* Score area */}
                     <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                       {locked ? (
                         <div style={{ textAlign: "center" }}>
-                          {m.home_score !== null && (
-                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                              <span style={{ fontWeight: 700, color: "#94a3b8" }}>
+                          {m.home_score !== null ? (
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap", justifyContent: "center" }}>
+                              <span style={{ fontWeight: 700, color: "var(--muted)", fontSize: "0.9rem" }}>
                                 {pred ? `${pred.home_score}:${pred.away_score}` : "—"}
                               </span>
-                              <span style={{ color: "#475569" }}>→</span>
-                              <span style={{ fontWeight: 700, color: "#f59e0b" }}>
+                              <span style={{ color: "var(--border)" }}>→</span>
+                              <span style={{ fontWeight: 700, color: "var(--green)", fontSize: "0.9rem" }}>
                                 {m.home_score}:{m.away_score}
                               </span>
-                              {pred && (
+                              {badge && (
                                 <span style={{
-                                  fontWeight: 800, fontSize: "1rem",
-                                  color: pointsColor(pred.points),
-                                  marginRight: "4px"
+                                  fontWeight: 700, fontSize: "0.8rem", borderRadius: 6,
+                                  padding: "2px 8px", background: badge.bg, color: badge.color,
                                 }}>
-                                  {pred.points === 4 ? "✓✓" : pred.points === 1 ? "✓" : "✗"} {pred.points}pt
+                                  {badge.text}
                                 </span>
                               )}
                             </div>
-                          )}
-                          {m.home_score === null && (
-                            <span style={{ color: "#475569", fontSize: "0.8rem" }}>
+                          ) : (
+                            <span style={{ color: "var(--muted)", fontSize: "0.78rem" }}>
                               {pred ? `ניחוש: ${pred.home_score}:${pred.away_score} (נעול)` : "נעול"}
                             </span>
                           )}
@@ -222,31 +244,24 @@ export default function PredictionsPage() {
                             type="number" min={0} max={30}
                             value={draft.home}
                             onChange={(e) => setDrafts((d) => ({ ...d, [m.id]: { ...d[m.id], home: e.target.value } }))}
-                            style={{
-                              width: "48px", textAlign: "center", padding: "6px",
-                              background: "#0f172a", border: "1px solid #475569",
-                              borderRadius: "6px", color: "#f1f5f9", fontSize: "1.1rem", fontWeight: 700
-                            }}
+                            style={scoreInputStyle}
                           />
-                          <span style={{ color: "#475569", fontWeight: 700 }}>:</span>
+                          <span style={{ color: "var(--muted)", fontWeight: 700 }}>:</span>
                           <input
                             type="number" min={0} max={30}
                             value={draft.away}
                             onChange={(e) => setDrafts((d) => ({ ...d, [m.id]: { ...d[m.id], away: e.target.value } }))}
-                            style={{
-                              width: "48px", textAlign: "center", padding: "6px",
-                              background: "#0f172a", border: "1px solid #475569",
-                              borderRadius: "6px", color: "#f1f5f9", fontSize: "1.1rem", fontWeight: 700
-                            }}
+                            style={scoreInputStyle}
                           />
                           <button
                             onClick={() => save(m.id)}
                             disabled={isSaving || draft.home === "" || draft.away === ""}
                             style={{
-                              background: justSaved ? "#16a34a" : "#f59e0b",
-                              color: "#0f172a", border: "none", borderRadius: "6px",
+                              background: justSaved ? "#16a34a" : "var(--green)",
+                              color: "#0d1a10", border: "none", borderRadius: 8,
                               padding: "6px 14px", fontWeight: 700, cursor: "pointer",
-                              fontSize: "0.85rem", opacity: (draft.home === "" || draft.away === "") ? 0.5 : 1
+                              fontSize: "0.82rem", fontFamily: "inherit",
+                              opacity: draft.home === "" || draft.away === "" ? 0.45 : 1,
                             }}
                           >
                             {justSaved ? "✓ נשמר" : isSaving ? "..." : "שמור"}
@@ -255,15 +270,15 @@ export default function PredictionsPage() {
                       )}
                     </div>
 
-                    {/* Away team */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flex: 1, justifyContent: "flex-end", minWidth: "120px" }}>
-                      <span style={{ fontWeight: 600, fontSize: "0.9rem" }}>{m.away_team}</span>
+                    {/* Away */}
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flex: 1, justifyContent: "flex-end", minWidth: 110 }}>
+                      <span style={{ fontWeight: 600, fontSize: "0.87rem" }}>{m.away_team}</span>
                       <span style={{ fontSize: "1.2rem" }}>{m.away_flag}</span>
                     </div>
 
                     {/* Date */}
                     {!locked && (
-                      <div style={{ width: "100%", color: "#64748b", fontSize: "0.72rem", marginTop: "2px" }}>
+                      <div style={{ width: "100%", color: "var(--muted)", fontSize: "0.7rem", marginTop: "1px" }}>
                         {formatDate(m.match_date)} · {m.venue}
                       </div>
                     )}
@@ -276,7 +291,10 @@ export default function PredictionsPage() {
       })}
 
       {displayMatches.length === 0 && (
-        <div style={{ textAlign: "center", padding: "3rem", color: "#475569" }}>
+        <div style={{
+          textAlign: "center", padding: "3rem", color: "var(--muted)",
+          background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 16,
+        }}>
           אין משחקים להציג עם הסינון הנוכחי
         </div>
       )}
