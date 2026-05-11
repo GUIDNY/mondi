@@ -47,7 +47,7 @@ export default function PredictionsPage() {
 
   const load = useCallback(async () => {
     const [mRes, pRes] = await Promise.all([
-      fetch("/api/admin/results"),
+      fetch("/api/matches"),
       fetch("/api/predictions"),
     ]);
     const mData: Match[] = await mRes.json();

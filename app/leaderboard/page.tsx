@@ -1,55 +1,39 @@
-import { getDb } from "@/lib/db";
+import { supabase } from "@/lib/supabase";
 import { getSession } from "@/lib/auth";
-
-interface LeaderboardRow {
-  id: number;
-  username: string;
-  predictions_count: number;
-  exact_count: number;
-  direction_count: number;
-  total_points: number;
-}
 
 const medals = ["🥇", "🥈", "🥉"];
 
 export default async function LeaderboardPage() {
-  const [session, rows] = await Promise.all([
+  const [session, { data: users }, { data: preds }] = await Promise.all([
     getSession(),
-    Promise.resolve(
-      (() => {
-        const db = getDb();
-        return db.prepare(`
-          SELECT
-            u.id,
-            u.username,
-            COUNT(p.id) as predictions_count,
-            COALESCE(SUM(CASE WHEN p.points = 4 THEN 1 ELSE 0 END), 0) as exact_count,
-            COALESCE(SUM(CASE WHEN p.points = 1 THEN 1 ELSE 0 END), 0) as direction_count,
-            COALESCE(SUM(p.points), 0) as total_points
-          FROM users u
-          LEFT JOIN predictions p ON p.user_id = u.id
-          GROUP BY u.id
-          ORDER BY total_points DESC, exact_count DESC, predictions_count DESC
-        `).all() as LeaderboardRow[];
-      })()
-    ),
+    supabase.from("users").select("id, username"),
+    supabase.from("predictions").select("user_id, points"),
   ]);
+
+  const rows = (users || [])
+    .map((u) => {
+      const up = (preds || []).filter((p) => p.user_id === u.id);
+      return {
+        id: u.id,
+        username: u.username,
+        predictions_count: up.length,
+        exact_count: up.filter((p) => p.points === 4).length,
+        direction_count: up.filter((p) => p.points === 1).length,
+        total_points: up.reduce((s: number, p: { points: number | null }) => s + (p.points || 0), 0),
+      };
+    })
+    .sort((a, b) => b.total_points - a.total_points || b.exact_count - a.exact_count || b.predictions_count - a.predictions_count);
 
   return (
     <div style={{ maxWidth: "700px", margin: "0 auto", padding: "2rem 1rem" }}>
-      <h1 style={{ fontSize: "2rem", fontWeight: 800, color: "#f59e0b", marginBottom: "0.5rem" }}>
-        טבלת דירוג 🏆
-      </h1>
-      <p style={{ color: "#94a3b8", marginBottom: "2rem" }}>
-        {rows.length} משתתפים · מתעדכן בזמן אמת
-      </p>
+      <h1 style={{ fontSize: "2rem", fontWeight: 800, color: "#f59e0b", marginBottom: "0.5rem" }}>טבלת דירוג 🏆</h1>
+      <p style={{ color: "#94a3b8", marginBottom: "2rem" }}>{rows.length} משתתפים · מתעדכן בזמן אמת</p>
 
-      {/* Legend */}
       <div style={{ display: "flex", gap: "1.5rem", marginBottom: "1.5rem" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.85rem", color: "#94a3b8" }}>
+        <div style={{ fontSize: "0.85rem", color: "#94a3b8" }}>
           <span style={{ color: "#f59e0b", fontWeight: 700 }}>4 נק&apos;</span> = תוצאה מדויקת
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.85rem", color: "#94a3b8" }}>
+        <div style={{ fontSize: "0.85rem", color: "#94a3b8" }}>
           <span style={{ color: "#60a5fa", fontWeight: 700 }}>1 נק&apos;</span> = כיוון נכון
         </div>
       </div>
@@ -71,22 +55,15 @@ export default async function LeaderboardPage() {
                 padding: "1rem 1.25rem",
                 display: "flex", alignItems: "center", gap: "1rem"
               }}>
-                {/* Rank */}
                 <div style={{ fontWeight: 800, fontSize: "1.2rem", minWidth: "2.5rem", textAlign: "center" }}>
                   {i < 3 ? medals[i] : `${i + 1}.`}
                 </div>
-
-                {/* Username */}
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 700, fontSize: "1rem", color: isMe ? "#60a5fa" : "#f1f5f9" }}>
                     {row.username} {isMe && <span style={{ fontSize: "0.75rem", color: "#60a5fa" }}>(אתה)</span>}
                   </div>
-                  <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: "2px" }}>
-                    {row.predictions_count} ניחושים
-                  </div>
+                  <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: "2px" }}>{row.predictions_count} ניחושים</div>
                 </div>
-
-                {/* Stats */}
                 <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
                   <div style={{ textAlign: "center" }}>
                     <div style={{ fontSize: "1rem", fontWeight: 700, color: "#f59e0b" }}>{row.exact_count}</div>
@@ -96,13 +73,8 @@ export default async function LeaderboardPage() {
                     <div style={{ fontSize: "1rem", fontWeight: 700, color: "#60a5fa" }}>{row.direction_count}</div>
                     <div style={{ fontSize: "0.7rem", color: "#64748b" }}>כיוון</div>
                   </div>
-                  <div style={{
-                    background: "#0f172a", borderRadius: "8px", padding: "0.4rem 0.8rem",
-                    textAlign: "center", minWidth: "60px"
-                  }}>
-                    <div style={{ fontSize: "1.4rem", fontWeight: 800, color: i < 3 ? "#f59e0b" : "#f1f5f9" }}>
-                      {row.total_points}
-                    </div>
+                  <div style={{ background: "#0f172a", borderRadius: "8px", padding: "0.4rem 0.8rem", textAlign: "center", minWidth: "60px" }}>
+                    <div style={{ fontSize: "1.4rem", fontWeight: 800, color: i < 3 ? "#f59e0b" : "#f1f5f9" }}>{row.total_points}</div>
                     <div style={{ fontSize: "0.7rem", color: "#64748b" }}>נקודות</div>
                   </div>
                 </div>
