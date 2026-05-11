@@ -2,8 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase, calculatePoints, DbPrediction } from "@/lib/supabase";
 
 const FD_BASE = "https://api.football-data.org/v4";
-// Competitions to sync
 const COMPETITIONS = ["WC", "PL", "SA"];
+
+// Statuses where scores are live (match in progress)
+const LIVE_STATUSES = new Set(["IN_PLAY", "PAUSED", "EXTRA_TIME", "PENALTY_SHOOTOUT"]);
 
 interface FdMatch {
   id: number;
@@ -11,13 +13,32 @@ interface FdMatch {
   status: string;
   homeTeam: { name: string };
   awayTeam: { name: string };
-  score: { fullTime: { home: number | null; away: number | null } };
+  score: {
+    fullTime: { home: number | null; away: number | null };
+    halfTime?: { home: number | null; away: number | null };
+    regularTime?: { home: number | null; away: number | null };
+  };
 }
 
 function teamMatch(ourName: string, apiName: string): boolean {
   const a = ourName.toLowerCase().trim();
   const b = apiName.toLowerCase().trim();
   return a === b || a.includes(b) || b.includes(a);
+}
+
+function findOurMatch(
+  apiMatch: FdMatch,
+  pool: { id: number; match_date: string | null; home_team: string; away_team: string }[]
+) {
+  const apiDay = apiMatch.utcDate.slice(0, 10);
+  const byTeams = (m: typeof pool[0]) =>
+    teamMatch(m.home_team, apiMatch.homeTeam.name) &&
+    teamMatch(m.away_team, apiMatch.awayTeam.name);
+
+  return (
+    pool.find((m) => m.match_date?.slice(0, 10) === apiDay && byTeams(m)) ??
+    pool.find((m) => byTeams(m))
+  );
 }
 
 export async function GET(req: NextRequest) {
@@ -27,56 +48,81 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    // Fetch finished matches from all tracked competitions
-    const allApiMatches: FdMatch[] = [];
+    const liveApiMatches: FdMatch[] = [];
+    const finishedApiMatches: FdMatch[] = [];
+
+    // Fetch LIVE + FINISHED matches for each competition
     for (const comp of COMPETITIONS) {
-      const res = await fetch(`${FD_BASE}/competitions/${comp}/matches?status=FINISHED`, {
-        headers: { "X-Auth-Token": process.env.FOOTBALL_DATA_API_KEY! },
-        cache: "no-store",
-      });
-      if (!res.ok) continue;
-      const { matches } = await res.json() as { matches: FdMatch[] };
-      if (matches?.length) allApiMatches.push(...matches);
+      const [liveRes, finRes] = await Promise.all([
+        fetch(`${FD_BASE}/competitions/${comp}/matches?status=LIVE`, {
+          headers: { "X-Auth-Token": process.env.FOOTBALL_DATA_API_KEY! },
+          cache: "no-store",
+        }),
+        fetch(`${FD_BASE}/competitions/${comp}/matches?status=FINISHED`, {
+          headers: { "X-Auth-Token": process.env.FOOTBALL_DATA_API_KEY! },
+          cache: "no-store",
+        }),
+      ]);
+
+      if (liveRes.ok) {
+        const { matches } = await liveRes.json() as { matches: FdMatch[] };
+        if (matches?.length) liveApiMatches.push(...matches);
+      }
+      if (finRes.ok) {
+        const { matches } = await finRes.json() as { matches: FdMatch[] };
+        if (matches?.length) finishedApiMatches.push(...matches);
+      }
     }
 
-    if (!allApiMatches.length) {
-      return NextResponse.json({ updated: 0, msg: "No finished matches from any competition" });
-    }
-
-    // Only fetch unscored matches from our DB
-    const { data: ourMatches } = await supabase
+    // Fetch all our matches that don't have a final score yet
+    const { data: unscoredMatches } = await supabase
       .from("matches")
       .select("id, match_date, home_team, away_team")
       .is("home_score", null);
 
-    if (!ourMatches?.length) {
-      return NextResponse.json({ updated: 0, msg: "All matches already scored" });
+    // Also fetch all our matches for live score updates (already have score but match is live)
+    const { data: allOurMatches } = await supabase
+      .from("matches")
+      .select("id, match_date, home_team, away_team");
+
+    const pool = allOurMatches ?? [];
+    const unscoredPool = unscoredMatches ?? [];
+
+    let liveUpdated = 0;
+    let finishedUpdated = 0;
+
+    // 1. Update live scores (in-progress matches) — no points calculation yet
+    for (const apiMatch of liveApiMatches) {
+      if (!LIVE_STATUSES.has(apiMatch.status)) continue;
+
+      // Use the current score during the match (fullTime shows current, halfTime shows half-time)
+      const currentScore = apiMatch.score?.fullTime ?? apiMatch.score?.halfTime;
+      if (currentScore?.home == null || currentScore?.away == null) continue;
+
+      const ourMatch = findOurMatch(apiMatch, pool);
+      if (!ourMatch) continue;
+
+      await supabase
+        .from("matches")
+        .update({ home_score: currentScore.home, away_score: currentScore.away })
+        .eq("id", ourMatch.id);
+
+      liveUpdated++;
     }
 
-    let updated = 0;
+    // 2. Finalize finished matches — update score + calculate points
+    for (const apiMatch of finishedApiMatches) {
+      if (apiMatch.status !== "FINISHED") continue;
 
-    for (const apiMatch of allApiMatches) {
       const ft = apiMatch.score?.fullTime;
       if (ft?.home == null || ft?.away == null) continue;
 
-      // Match by team names (primary) — prefer same-day matches, fall back to team-only
-      const apiDay = apiMatch.utcDate.slice(0, 10);
-      const byTeams = (m: typeof ourMatches[0]) =>
-        teamMatch(m.home_team, apiMatch.homeTeam.name) &&
-        teamMatch(m.away_team, apiMatch.awayTeam.name);
-
-      const ourMatch =
-        ourMatches.find((m) => m.match_date?.slice(0, 10) === apiDay && byTeams(m)) ??
-        ourMatches.find((m) => byTeams(m));
-
+      const ourMatch = findOurMatch(apiMatch, unscoredPool);
       if (!ourMatch) continue;
-
-      const homeScore = ft.home;
-      const awayScore = ft.away;
 
       const { error: matchErr } = await supabase
         .from("matches")
-        .update({ home_score: homeScore, away_score: awayScore })
+        .update({ home_score: ft.home, away_score: ft.away })
         .eq("id", ourMatch.id);
 
       if (matchErr) continue;
@@ -89,18 +135,19 @@ export async function GET(req: NextRequest) {
       if (preds?.length) {
         const updates = preds.map((p) => ({
           ...p,
-          points: calculatePoints(p.home_score, p.away_score, homeScore, awayScore),
+          points: calculatePoints(p.home_score, p.away_score, ft.home!, ft.away!),
         }));
         await supabase.from("predictions").upsert(updates);
       }
 
-      updated++;
+      finishedUpdated++;
     }
 
     return NextResponse.json({
       ok: true,
-      updated,
-      total_finished: allApiMatches.length,
+      live_updated: liveUpdated,
+      finished_updated: finishedUpdated,
+      live_matches: liveApiMatches.length,
       ts: new Date().toISOString(),
     });
   } catch (err) {
