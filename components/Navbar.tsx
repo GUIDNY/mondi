@@ -22,11 +22,12 @@ function Icon({ name, fill = 0, size = 24 }: { name: string; fill?: number; size
 }
 
 const NAV_ITEMS = [
-  { href: "/", label: "Live Lobby", labelHe: "לוח ראשי", icon: "sensors" },
-  { href: "/predictions", label: "My Bets", labelHe: "הניחושים שלי", icon: "sports_soccer" },
-  { href: "/leaderboard", label: "VIP Leaderboard", labelHe: "טבלת דירוג", icon: "military_tech" },
+  { href: "/", label: "Live Lobby", labelHe: "לוח ראשי", icon: "sensors", exact: true },
+  { href: "/predictions", label: "My Bets", labelHe: "הניחושים שלי", icon: "sports_soccer", exact: false },
+  { href: "/leaderboard", label: "VIP Leaderboard", labelHe: "טבלת דירוג", icon: "military_tech", exact: false },
+  { href: "/groups", label: "Groups", labelHe: "קבוצות", icon: "group", exact: false },
 ];
-const ADMIN_ITEM = { href: "/admin", label: "Admin", labelHe: "ניהול", icon: "admin_panel_settings" };
+const ADMIN_ITEM = { href: "/admin", label: "Admin", labelHe: "ניהול", icon: "admin_panel_settings", exact: false };
 
 export default function Navbar() {
   const [session, setSession] = useState<Session | null>(null);
@@ -71,18 +72,21 @@ export default function Navbar() {
           </span>
         </Link>
         <nav style={{ display: "flex", gap: "1.5rem" }}>
-          {navItems.map(item => (
-            <Link key={item.href} href={item.href} style={{
-              color: path === item.href ? "var(--primary)" : "var(--on-surface-variant)",
-              fontSize: "0.78rem", fontWeight: path === item.href ? 600 : 400,
-              textDecoration: "none",
-              borderBottom: path === item.href ? "2px solid var(--primary)" : "2px solid transparent",
-              paddingBottom: "2px",
-              fontFamily: "Rubik,sans-serif",
-            }}>
-              {item.labelHe}
-            </Link>
-          ))}
+          {navItems.map(item => {
+            const active = item.exact ? path === item.href : path.startsWith(item.href);
+            return (
+              <Link key={item.href} href={item.href} style={{
+                color: active ? "var(--primary)" : "var(--on-surface-variant)",
+                fontSize: "0.78rem", fontWeight: active ? 600 : 400,
+                textDecoration: "none",
+                borderBottom: active ? "2px solid var(--primary)" : "2px solid transparent",
+                paddingBottom: "2px",
+                fontFamily: "Rubik,sans-serif",
+              }}>
+                {item.labelHe}
+              </Link>
+            );
+          })}
         </nav>
       </div>
 
@@ -142,7 +146,7 @@ export default function Navbar() {
         {/* Nav items */}
         <nav style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
           {navItems.map(item => {
-            const active = path === item.href;
+            const active = item.exact ? path === item.href : path.startsWith(item.href);
             return (
               <Link key={item.href} href={item.href} style={{
                 display: "flex", alignItems: "center", gap: "0.75rem",
@@ -184,15 +188,15 @@ export default function Navbar() {
   const mobileNav = (
     <nav className="bottomnav">
       {[
-        { href: "/", label: "ראשי", icon: "dashboard" },
-        { href: "/predictions", label: "ניחושים", icon: "calendar_month" },
-        { href: "/leaderboard", label: "דירוג", icon: "leaderboard" },
+        { href: "/", label: "ראשי", icon: "dashboard", exact: true },
+        { href: "/predictions", label: "ניחושים", icon: "calendar_month", exact: false },
+        { href: "/leaderboard", label: "דירוג", icon: "leaderboard", exact: false },
+        { href: "/groups", label: "קבוצות", icon: "group", exact: false },
         ...(session?.isAdmin
-          ? [{ href: "/admin", label: "ניהול", icon: "admin_panel_settings" }]
-          : [{ href: "/login", label: "כניסה", icon: "person" }]),
-        { href: "#", label: "היסטוריה", icon: "history" },
+          ? [{ href: "/admin", label: "ניהול", icon: "admin_panel_settings", exact: false }]
+          : [{ href: "/login", label: "כניסה", icon: "person", exact: true }]),
       ].map(item => {
-        const active = path === item.href && item.href !== "#";
+        const active = item.exact ? path === item.href : path.startsWith(item.href);
         return (
           <Link key={item.href + item.label} href={item.href} style={{
             display: "flex", flexDirection: "column", alignItems: "center",
