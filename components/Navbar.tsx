@@ -32,6 +32,7 @@ const ADMIN_ITEM = { href: "/admin", label: "Admin", labelHe: "ניהול", icon
 
 export default function Navbar() {
   const [session, setSession] = useState<Session | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const router = useRouter();
   const path = usePathname();
 
@@ -104,16 +105,47 @@ export default function Navbar() {
           </div>
         )}
         {session ? (
-          <button onClick={logout} title="יציאה" style={{
-            width: 34, height: 34, borderRadius: "50%",
-            background: "linear-gradient(135deg, var(--primary), #22c55e)",
-            border: "1.5px solid rgba(92,222,151,0.35)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: "0.9rem", fontWeight: 800, color: "var(--on-primary-container)",
-            cursor: "pointer", fontFamily: "Rubik,sans-serif",
-          }}>
-            {session.username[0]?.toUpperCase()}
-          </button>
+          <div style={{ position: "relative" }}>
+            <button onClick={() => setMenuOpen(o => !o)} style={{
+              width: 34, height: 34, borderRadius: "50%",
+              background: "linear-gradient(135deg, var(--primary), #22c55e)",
+              border: "1.5px solid rgba(92,222,151,0.35)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: "0.9rem", fontWeight: 800, color: "var(--on-primary-container)",
+              cursor: "pointer", fontFamily: "Rubik,sans-serif",
+            }}>
+              {session.username[0]?.toUpperCase()}
+            </button>
+            {menuOpen && (
+              <>
+                <div onClick={() => setMenuOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 399 }} />
+                <div style={{
+                  position: "absolute", top: "calc(100% + 8px)", left: 0,
+                  background: "rgba(14,21,16,0.97)", backdropFilter: "blur(16px)",
+                  border: "1px solid rgba(92,222,151,0.2)", borderRadius: 12,
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.5)", zIndex: 400,
+                  minWidth: 150, overflow: "hidden",
+                }}>
+                  <Link href="/profile" onClick={() => setMenuOpen(false)} style={{
+                    display: "flex", alignItems: "center", gap: "0.6rem",
+                    padding: "0.75rem 1rem", color: "var(--on-surface-variant)",
+                    textDecoration: "none", fontSize: "0.85rem", fontFamily: "Rubik,sans-serif",
+                    borderBottom: "1px solid rgba(92,222,151,0.1)",
+                  }}>
+                    <Icon name="person" size={18} /> הפרופיל שלי
+                  </Link>
+                  <button onClick={() => { setMenuOpen(false); logout(); }} style={{
+                    display: "flex", alignItems: "center", gap: "0.6rem",
+                    padding: "0.75rem 1rem", color: "#f87171",
+                    background: "none", border: "none", cursor: "pointer",
+                    fontSize: "0.85rem", fontFamily: "Rubik,sans-serif", width: "100%",
+                  }}>
+                    <Icon name="logout" size={18} /> יציאה
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         ) : (
           <Link href="/login" style={{
             background: "var(--primary)", color: "var(--on-primary-container)",
