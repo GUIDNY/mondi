@@ -21,7 +21,8 @@ interface FdMatch {
   };
 }
 
-function teamMatch(ourName: string, apiName: string): boolean {
+function teamMatch(ourName: string | null, apiName: string | null): boolean {
+  if (!ourName || !apiName) return false;
   const a = ourName.toLowerCase().trim();
   const b = apiName.toLowerCase().trim();
   return a === b || a.includes(b) || b.includes(a);
@@ -31,6 +32,7 @@ function findOurMatch(
   apiMatch: FdMatch,
   pool: { id: number; match_date: string | null; home_team: string; away_team: string; venue?: string | null; home_score?: number | null }[]
 ) {
+  if (!apiMatch.homeTeam?.name || !apiMatch.awayTeam?.name) return undefined;
   const apiDay = apiMatch.utcDate.slice(0, 10);
   const byTeams = (m: typeof pool[0]) =>
     teamMatch(m.home_team, apiMatch.homeTeam.name) &&
