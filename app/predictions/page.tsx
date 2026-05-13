@@ -68,15 +68,18 @@ const scoreInput: React.CSSProperties = {
 };
 
 const WC_STAGES = new Set(["group", "r32", "r16", "qf", "sf", "3rd", "final"]);
+const LL_STAGES = new Set(["LL"]);
 
 const COMPETITIONS: { key: string; label: string; emoji: string }[] = [
   { key: "PL", label: "פרמייר ליג", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
+  { key: "LL", label: "לה ליגה", emoji: "🇪🇸" },
   { key: "WC", label: "מונדיאל 2026", emoji: "🌍" },
   { key: "SA", label: "סריה א", emoji: "🇮🇹" },
 ];
 
 function getCompetition(stage: string): string {
   if (WC_STAGES.has(stage)) return "WC";
+  if (LL_STAGES.has(stage)) return "LL";
   return stage; // "PL", "SA", etc.
 }
 
