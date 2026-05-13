@@ -51,7 +51,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ co
 
   const { champion_pick, top_scorer_pick } = await req.json();
   const update: Record<string, string | null> = {};
-  if (group.has_champion_pick && champion_pick !== undefined) update.champion_pick = champion_pick;
+  if (champion_pick !== undefined) update.champion_pick = champion_pick;
   if (group.has_top_scorer_pick && top_scorer_pick !== undefined) update.top_scorer_pick = top_scorer_pick;
 
   const { error } = await supabase

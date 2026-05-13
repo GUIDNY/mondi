@@ -280,14 +280,20 @@ export default function PredictionsPage() {
                         <div style={{ textAlign: "center" }}>
                           {m.home_score !== null ? (
                             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
-                              <div style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
-                                <span style={{ fontWeight: 600, color: "var(--on-surface-variant)", fontSize: "0.8rem", fontFamily: "Montserrat,sans-serif" }}>
-                                  {pred ? `${pred.home_score}:${pred.away_score}` : "—"}
-                                </span>
+                              <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", direction: "ltr" }}>
+                                <div style={{ textAlign: "center" }}>
+                                  <div style={{ fontSize: "0.5rem", color: "var(--on-surface-variant)", marginBottom: "1px" }}>ניחוש</div>
+                                  <span style={{ fontWeight: 600, color: "var(--on-surface-variant)", fontSize: "0.8rem", fontFamily: "Montserrat,sans-serif" }}>
+                                    {pred ? `${pred.home_score}:${pred.away_score}` : "—"}
+                                  </span>
+                                </div>
                                 <span style={{ color: "var(--outline-variant)", fontSize: "0.75rem" }}>→</span>
-                                <span style={{ fontWeight: 700, color: "var(--primary)", fontSize: "0.85rem", fontFamily: "Montserrat,sans-serif" }}>
-                                  {m.home_score}:{m.away_score}
-                                </span>
+                                <div style={{ textAlign: "center" }}>
+                                  <div style={{ fontSize: "0.5rem", color: "var(--primary)", marginBottom: "1px" }}>תוצאה</div>
+                                  <span style={{ fontWeight: 700, color: "var(--primary)", fontSize: "0.85rem", fontFamily: "Montserrat,sans-serif" }}>
+                                    {m.home_score}:{m.away_score}
+                                  </span>
+                                </div>
                               </div>
                               {badge && (
                                 <span style={{

@@ -268,9 +268,10 @@ export default function ProfilePage() {
                 borderRadius: 14, padding: "0.9rem 1.1rem",
                 display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap",
                 border: badge ? `1px solid ${badge.border}` : "1px solid rgba(255,255,255,0.07)",
+                direction: "ltr",
               }}>
-                {/* Teams */}
-                <div style={{ flex: 1, minWidth: 200 }}>
+                {/* Teams — explicit rtl for Hebrew text flow */}
+                <div style={{ flex: 1, minWidth: 160, direction: "rtl" }}>
                   <div style={{ fontWeight: 600, fontSize: "0.88rem", color: "var(--on-surface)", marginBottom: "0.2rem" }}>
                     {m.home_flag} {m.home_team} — {m.away_team} {m.away_flag}
                   </div>
@@ -281,8 +282,8 @@ export default function ProfilePage() {
 
                 {/* My prediction */}
                 <div style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: "0.6rem", color: "var(--on-surface-variant)", marginBottom: "0.2rem" }}>הניחוש שלי</div>
-                  <div style={{ fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "1.1rem", color: "#fff" }}>
+                  <div style={{ fontSize: "0.6rem", color: "var(--on-surface-variant)", marginBottom: "0.2rem", direction: "rtl" }}>הניחוש שלי</div>
+                  <div style={{ fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "1.1rem", color: "#fff", direction: "ltr" }}>
                     {p.home_score} : {p.away_score}
                   </div>
                 </div>
@@ -290,15 +291,15 @@ export default function ProfilePage() {
                 {/* Actual result */}
                 {hasResult && (
                   <div style={{ textAlign: "center" }}>
-                    <div style={{ fontSize: "0.6rem", color: "var(--on-surface-variant)", marginBottom: "0.2rem" }}>תוצאה</div>
-                    <div style={{ fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "1.1rem", color: "var(--primary)" }}>
+                    <div style={{ fontSize: "0.6rem", color: "var(--on-surface-variant)", marginBottom: "0.2rem", direction: "rtl" }}>תוצאה</div>
+                    <div style={{ fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "1.1rem", color: "var(--primary)", direction: "ltr" }}>
                       {m.home_score} : {m.away_score}
                     </div>
                   </div>
                 )}
 
                 {/* Badge */}
-                <div>
+                <div style={{ direction: "rtl" }}>
                   {badge ? (
                     <span style={{
                       fontSize: "0.78rem", padding: "4px 12px", borderRadius: 8,

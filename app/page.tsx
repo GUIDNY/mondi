@@ -228,7 +228,7 @@ export default async function Home() {
                 <div key={m.id} style={{
                   padding: "0.6rem 1rem",
                   borderBottom: idx < gMatches.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
-                  display: "flex", alignItems: "center", gap: "0.5rem",
+                  display: "flex", alignItems: "center", gap: "0.5rem", direction: "ltr",
                 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flex: 1 }}>
                     <span style={{ fontSize: "1.05rem" }}>{m.home_flag}</span>
@@ -279,6 +279,7 @@ export default async function Home() {
                 <div key={m.id} className="glass-card" style={{
                   borderRadius: 14, padding: "0.8rem 1rem",
                   display: "flex", alignItems: "center", justifyContent: "space-between",
+                  direction: "ltr",
                 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
                     <span style={{ fontSize: "1.1rem" }}>{m.home_flag}</span>

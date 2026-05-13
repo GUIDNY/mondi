@@ -134,6 +134,10 @@ const KNOCKOUT_MATCHES: MatchData[] = [
 
 export const ALL_MATCHES: MatchData[] = [...generateGroupMatches(), ...KNOCKOUT_MATCHES];
 
+export const WC_TEAMS: { name: string; flag: string }[] = Object.values(GROUPS).flatMap(
+  ({ teams, flags }) => teams.map((name, i) => ({ name, flag: flags[i] }))
+);
+
 export const STAGE_LABELS: Record<Stage, string> = {
   group: "שלב הבתים",
   r32: "שמינית גמר",

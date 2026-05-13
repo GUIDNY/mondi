@@ -119,13 +119,14 @@ h1, h2, h3, h4 {
   }
 }
 
-/* Match card responsive grid */
+/* Match card responsive grid — always LTR so home=left, away=right */
 .match-card {
   display: grid;
   grid-template-areas: "home score away";
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 0.5rem;
+  direction: ltr;
 }
 .match-card-home { grid-area: home; display: flex; align-items: center; gap: 0.4rem; min-width: 0; }
 .match-card-score { grid-area: score; display: flex; align-items: center; gap: 0.4rem; flex-shrink: 0; }

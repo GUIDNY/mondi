@@ -153,14 +153,14 @@ export default function LiveMatches() {
                 </span>
               </div>
 
-              {/* Teams + score */}
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              {/* Teams + score — direction ltr: home on left, away on right */}
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", direction: "ltr" }}>
                 {/* Home */}
-                <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "2px" }}>
+                <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "2px" }}>
                   <span style={{ fontSize: "1.3rem" }}>{m.home_flag}</span>
                   <span style={{
                     fontSize: "0.7rem", fontWeight: 600, color: "var(--on-surface)",
-                    textAlign: "right", lineHeight: 1.2, maxWidth: 70,
+                    textAlign: "left", lineHeight: 1.2, maxWidth: 70,
                     overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                   }}>{m.home_team.replace(/ FC$| AFC$/, "")}</span>
                 </div>
@@ -184,11 +184,11 @@ export default function LiveMatches() {
                 </div>
 
                 {/* Away */}
-                <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "2px" }}>
+                <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "2px" }}>
                   <span style={{ fontSize: "1.3rem" }}>{m.away_flag}</span>
                   <span style={{
                     fontSize: "0.7rem", fontWeight: 600, color: "var(--on-surface)",
-                    textAlign: "left", lineHeight: 1.2, maxWidth: 70,
+                    textAlign: "right", lineHeight: 1.2, maxWidth: 70,
                     overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                   }}>{m.away_team.replace(/ FC$| AFC$/, "")}</span>
                 </div>

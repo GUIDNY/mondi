@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { WC_TEAMS } from "@/lib/matches-data";
 
 interface LeaderboardEntry {
   user_id: number;
@@ -247,9 +248,7 @@ export default function GroupDetailPage() {
       {/* Tabs */}
       <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
         {chipTab("board", `🏅 לוח תוצאות (${leaderboard.length})`)}
-        {(group.has_champion_pick || group.has_top_scorer_pick)
-          ? chipTab("picks", "🎯 הניחושים שלי")
-          : null}
+        {chipTab("picks", "🏆 ניחוש אלוף")}
         {is_creator ? chipTab("settings", "⚙️ הגדרות") : null}
       </div>
 
@@ -315,10 +314,10 @@ export default function GroupDetailPage() {
 
                     {/* Picks */}
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.2rem", alignItems: "flex-end" }}>
-                      {group.has_champion_pick && entry.champion_pick && (
+                      {entry.champion_pick && (
                         <div style={{ fontSize: "0.68rem", color: "var(--on-surface-variant)", display: "flex", alignItems: "center", gap: "0.3rem" }}>
-                          <span>🏆</span>
-                          <span style={{ maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{entry.champion_pick}</span>
+                          <span>{WC_TEAMS.find(t => t.name === entry.champion_pick)?.flag ?? "🏆"}</span>
+                          <span style={{ maxWidth: 90, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{entry.champion_pick}</span>
                         </div>
                       )}
                       {group.has_top_scorer_pick && entry.top_scorer_pick && (
@@ -348,65 +347,116 @@ export default function GroupDetailPage() {
         </div>
       )}
 
-      {/* My Picks */}
+      {/* Champion Pick */}
       {tab === "picks" && (
-        <div className="glass-card" style={{ borderRadius: 20, padding: "1.75rem", maxWidth: 480 }}>
-          <h2 style={{ fontFamily: "Rubik,sans-serif", fontWeight: 700, fontSize: "1.05rem", marginBottom: "1.5rem", color: "#fff" }}>
-            הניחושים שלי
-          </h2>
-          <div style={{ display: "flex", flexDirection: "column", gap: "1.1rem" }}>
-            {group.has_champion_pick && (
+        <div>
+          <div className="glass-card" style={{ borderRadius: 20, padding: "1.5rem 1.75rem", marginBottom: "1rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.25rem" }}>
+              <span style={{ fontSize: "1.5rem" }}>🏆</span>
               <div>
-                <label style={{ display: "block", fontSize: "0.75rem", color: "var(--on-surface-variant)", fontWeight: 500, marginBottom: "0.4rem", textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                  🏆 ניחוש אלוף המונדיאל
-                </label>
-                <input style={inputStyle} type="text" placeholder="שם הנבחרת"
-                  value={picks.champion_pick}
-                  onChange={e => setPicks(p => ({ ...p, champion_pick: e.target.value }))} />
-                <div style={{ fontSize: "0.68rem", color: "var(--on-surface-variant)", marginTop: "0.25rem" }}>
-                  בונוס {group.champion_bonus_pts} נקודות אם תצדק
-                  {group.champion_result && (
-                    <span style={{ color: "var(--primary)", marginRight: "0.5rem" }}>· תוצאה: {group.champion_result}</span>
-                  )}
-                </div>
+                <h2 style={{ fontFamily: "Rubik,sans-serif", fontWeight: 800, fontSize: "1.05rem", margin: 0, color: "#fff" }}>
+                  מי יזכה במונדיאל 2026?
+                </h2>
+                <p style={{ fontSize: "0.75rem", color: "var(--on-surface-variant)", margin: "0.2rem 0 0" }}>
+                  בחרו נבחרת — הניחוש ייכנס ללוח התוצאות של הקבוצה
+                  {group.has_champion_pick && ` · בונוס ${group.champion_bonus_pts} נקודות אם תצדק`}
+                </p>
               </div>
-            )}
-            {group.has_top_scorer_pick && (
-              <div>
-                <label style={{ display: "block", fontSize: "0.75rem", color: "var(--on-surface-variant)", fontWeight: 500, marginBottom: "0.4rem", textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                  👟 ניחוש מלך שערים
-                </label>
-                <input style={inputStyle} type="text" placeholder="שם השחקן"
-                  value={picks.top_scorer_pick}
-                  onChange={e => setPicks(p => ({ ...p, top_scorer_pick: e.target.value }))} />
-                <div style={{ fontSize: "0.68rem", color: "var(--on-surface-variant)", marginTop: "0.25rem" }}>
-                  בונוס {group.top_scorer_bonus_pts} נקודות אם תצדק
-                  {group.top_scorer_result && (
-                    <span style={{ color: "var(--primary)", marginRight: "0.5rem" }}>· תוצאה: {group.top_scorer_result}</span>
-                  )}
-                </div>
-              </div>
-            )}
+            </div>
 
-            {picksStatus && (
+            {/* Current pick banner */}
+            {picks.champion_pick && (
               <div style={{
-                background: picksStatus.startsWith("✓") ? "rgba(92,222,151,0.1)" : "rgba(248,113,113,0.1)",
-                border: `1px solid ${picksStatus.startsWith("✓") ? "rgba(92,222,151,0.3)" : "rgba(248,113,113,0.3)"}`,
-                borderRadius: 10, padding: "0.6rem 1rem", fontSize: "0.85rem",
-                color: picksStatus.startsWith("✓") ? "var(--primary)" : "#f87171",
-              }}>{picksStatus}</div>
+                display: "flex", alignItems: "center", gap: "0.75rem",
+                padding: "0.75rem 1rem", borderRadius: 12, marginBottom: "1.1rem",
+                background: "rgba(92,222,151,0.1)", border: "1px solid rgba(92,222,151,0.3)",
+              }}>
+                <span style={{ fontSize: "1.5rem" }}>
+                  {WC_TEAMS.find(t => t.name === picks.champion_pick)?.flag ?? "🏳️"}
+                </span>
+                <div>
+                  <div style={{ fontSize: "0.65rem", color: "var(--primary)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.1rem" }}>הניחוש שלי</div>
+                  <div style={{ fontWeight: 700, color: "#fff", fontSize: "0.95rem" }}>{picks.champion_pick}</div>
+                </div>
+                {group.champion_result && (
+                  <div style={{ marginRight: "auto", textAlign: "left" }}>
+                    <div style={{ fontSize: "0.6rem", color: "var(--on-surface-variant)", marginBottom: "0.1rem" }}>הזוכה</div>
+                    <div style={{ fontWeight: 700, color: "var(--primary)" }}>{group.champion_result}</div>
+                  </div>
+                )}
+              </div>
             )}
 
-            <button onClick={savePicks} disabled={picksSaving} style={{
-              background: "var(--primary)", color: "var(--on-primary-container)",
-              fontFamily: "Rubik,sans-serif", fontWeight: 700, fontSize: "0.9rem",
-              border: "none", borderRadius: 10, padding: "0.85rem",
-              cursor: picksSaving ? "not-allowed" : "pointer", opacity: picksSaving ? 0.7 : 1,
-              boxShadow: "0 0 16px rgba(92,222,151,0.2)",
+            {/* Team grid */}
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))",
+              gap: "0.4rem",
+              maxHeight: 420, overflowY: "auto",
+              paddingLeft: "0.25rem",
             }}>
-              {picksSaving ? "שומר..." : "שמור ניחושים"}
-            </button>
+              {WC_TEAMS.map(team => {
+                const selected = picks.champion_pick === team.name;
+                return (
+                  <button key={team.name} onClick={() => setPicks(p => ({ ...p, champion_pick: selected ? "" : team.name }))} style={{
+                    display: "flex", alignItems: "center", gap: "0.45rem",
+                    padding: "0.5rem 0.7rem", borderRadius: 10, border: "1px solid",
+                    borderColor: selected ? "rgba(92,222,151,0.6)" : "rgba(61,74,64,0.4)",
+                    background: selected ? "rgba(92,222,151,0.15)" : "rgba(255,255,255,0.03)",
+                    cursor: "pointer", textAlign: "right",
+                    transition: "all 0.12s",
+                    boxShadow: selected ? "0 0 12px rgba(92,222,151,0.2)" : "none",
+                  }}>
+                    <span style={{ fontSize: "1.2rem", flexShrink: 0 }}>{team.flag}</span>
+                    <span style={{
+                      fontSize: "0.72rem", fontWeight: selected ? 700 : 400,
+                      color: selected ? "var(--primary)" : "var(--on-surface)",
+                      fontFamily: "Rubik,sans-serif", lineHeight: 1.2,
+                      overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                    }}>{team.name}</span>
+                    {selected && <span style={{ marginRight: "auto", color: "var(--primary)", fontSize: "0.7rem", flexShrink: 0 }}>✓</span>}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Save */}
+            <div style={{ marginTop: "1.1rem", display: "flex", alignItems: "center", gap: "0.75rem" }}>
+              <button onClick={savePicks} disabled={picksSaving} style={{
+                background: "var(--primary)", color: "var(--on-primary-container)",
+                fontFamily: "Rubik,sans-serif", fontWeight: 700, fontSize: "0.9rem",
+                border: "none", borderRadius: 10, padding: "0.75rem 1.75rem",
+                cursor: picksSaving ? "not-allowed" : "pointer", opacity: picksSaving ? 0.7 : 1,
+                boxShadow: "0 0 16px rgba(92,222,151,0.2)",
+              }}>
+                {picksSaving ? "שומר..." : "שמור ניחוש"}
+              </button>
+              {picksStatus && (
+                <span style={{
+                  fontSize: "0.85rem",
+                  color: picksStatus.startsWith("✓") ? "var(--primary)" : "#f87171",
+                }}>{picksStatus}</span>
+              )}
+            </div>
           </div>
+
+          {/* Top scorer pick (if enabled) */}
+          {group.has_top_scorer_pick && (
+            <div className="glass-card" style={{ borderRadius: 16, padding: "1.25rem 1.5rem" }}>
+              <label style={{ display: "block", fontSize: "0.75rem", color: "var(--on-surface-variant)", fontWeight: 500, marginBottom: "0.4rem", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                👟 ניחוש מלך שערים
+              </label>
+              <input style={inputStyle} type="text" placeholder="שם השחקן"
+                value={picks.top_scorer_pick}
+                onChange={e => setPicks(p => ({ ...p, top_scorer_pick: e.target.value }))} />
+              <div style={{ fontSize: "0.68rem", color: "var(--on-surface-variant)", marginTop: "0.25rem" }}>
+                בונוס {group.top_scorer_bonus_pts} נקודות אם תצדק
+                {group.top_scorer_result && (
+                  <span style={{ color: "var(--primary)", marginRight: "0.5rem" }}>· תוצאה: {group.top_scorer_result}</span>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
