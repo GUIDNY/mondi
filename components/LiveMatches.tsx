@@ -62,8 +62,8 @@ export default function LiveMatches() {
   useEffect(() => {
     const load = () => fetch("/api/matches").then(r => r.json()).then(setMatches).catch(() => {});
     load();
-    const dataTimer = setInterval(load, 60_000);
-    const clockTimer = setInterval(() => setNow(Date.now()), 30_000);
+    const dataTimer = setInterval(load, 30_000);
+    const clockTimer = setInterval(() => setNow(Date.now()), 15_000);
     return () => { clearInterval(dataTimer); clearInterval(clockTimer); };
   }, []);
 

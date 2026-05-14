@@ -11,6 +11,7 @@ interface Match {
   away_team: string;
   away_flag: string;
   match_date: string | null;
+  venue: string | null;
   home_score: number | null;
   away_score: number | null;
   group_name: string | null;
@@ -39,12 +40,15 @@ interface Me {
   isAdmin: boolean;
 }
 
-function formatDate(d: string | null) {
-  if (!d) return "";
-  return new Date(d).toLocaleDateString("he-IL", {
-    day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
-    timeZone: "Asia/Jerusalem",
-  });
+function formatMatchDate(m: Match) {
+  // Prefer kickoff time from venue ("Competition||ISO_UTC") over date-only match_date
+  const kickoff = m.venue?.includes("||")
+    ? new Date(m.venue.split("||")[1])
+    : m.match_date ? new Date(m.match_date + "T21:00:00Z") : null;
+  if (!kickoff) return "";
+  const day = kickoff.toLocaleDateString("he-IL", { day: "numeric", month: "short", timeZone: "Asia/Jerusalem" });
+  const time = kickoff.toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Jerusalem" });
+  return `${day} · ${time}`;
 }
 
 function pointsBadge(pts: number | null) {
@@ -276,7 +280,7 @@ export default function ProfilePage() {
                     {m.home_flag} {m.home_team} — {m.away_team} {m.away_flag}
                   </div>
                   <div style={{ fontSize: "0.68rem", color: "var(--on-surface-variant)" }}>
-                    {m.group_name ?? m.stage} · {formatDate(m.match_date)}
+                    {m.group_name ?? m.stage} · {formatMatchDate(m)}
                   </div>
                 </div>
 
