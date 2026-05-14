@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase, calculatePoints, DbPrediction } from "@/lib/supabase";
 
 const FD_BASE = "https://api.football-data.org/v4";
-const COMPETITIONS = ["WC", "PL", "SA"];
-const COMP_NAMES: Record<string, string> = { WC: "World Cup 2026", PL: "Premier League", SA: "Serie A" };
+const COMPETITIONS = ["WC", "PL", "SA", "PD"];
+const COMP_NAMES: Record<string, string> = { WC: "World Cup 2026", PL: "Premier League", SA: "Serie A", PD: "La Liga" };
 
 // Statuses where scores are live (match in progress)
 const LIVE_STATUSES = new Set(["IN_PLAY", "PAUSED", "EXTRA_TIME", "PENALTY_SHOOTOUT"]);
