@@ -108,13 +108,14 @@ export async function GET(req: NextRequest) {
     }
 
     // 2. Finalize finished matches — update score + calculate points
+    //    Use full pool (not unscoredPool) so live-updated matches also get points scored
     for (const apiMatch of finishedApiMatches) {
       if (apiMatch.status !== "FINISHED") continue;
 
       const ft = apiMatch.score?.fullTime;
       if (ft?.home == null || ft?.away == null) continue;
 
-      const ourMatch = findOurMatch(apiMatch, unscoredPool);
+      const ourMatch = findOurMatch(apiMatch, pool);
       if (!ourMatch) continue;
 
       const { error: matchErr } = await supabase
@@ -124,10 +125,12 @@ export async function GET(req: NextRequest) {
 
       if (matchErr) continue;
 
+      // Only score predictions that haven't been scored yet
       const { data: preds } = (await supabase
         .from("predictions")
         .select("*")
-        .eq("match_id", ourMatch.id)) as { data: DbPrediction[] | null };
+        .eq("match_id", ourMatch.id)
+        .is("points", null)) as { data: DbPrediction[] | null };
 
       if (preds?.length) {
         const updates = preds.map((p) => ({
