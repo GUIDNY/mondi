@@ -33,22 +33,9 @@ const ADMIN_ITEM = { href: "/admin", label: "Admin", labelHe: "ניהול", icon
 export default function Navbar() {
   const [session, setSession] = useState<Session | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [headerVisible, setHeaderVisible] = useState(true);
   const router = useRouter();
   const path = usePathname();
 
-  useEffect(() => {
-    let last = window.scrollY;
-    const onScroll = () => {
-      const current = window.scrollY;
-      if (current <= 10) { setHeaderVisible(true); }
-      else if (current < last) { setHeaderVisible(true); }
-      else { setHeaderVisible(false); }
-      last = current;
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -76,8 +63,6 @@ export default function Navbar() {
       display: "flex", alignItems: "center", justifyContent: "space-between",
       padding: "0 1.25rem", zIndex: 300,
       direction: "rtl",
-      transform: headerVisible ? "translateY(0)" : "translateY(-100%)",
-      transition: "transform 0.3s ease",
     }}>
       {/* RIGHT side (start in RTL): logo + nav links */}
       <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
