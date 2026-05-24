@@ -32,7 +32,7 @@ export default function PrivacyPage() {
         },
         {
           title: "5. זכויותיך",
-          body: `יש לך זכות לבקש מחיקה מלאה של החשבון ונתוניך בכל עת. שלח בקשה לאימייל: privacy@mondi.app ונמחק את כל המידע שלך תוך 7 ימי עסקים.`,
+          body: `יש לך זכות לבקש מחיקה מלאה של החשבון ונתוניך בכל עת. שלח בקשה לאימייל: bd12123@gmail.com ונמחק את כל המידע שלך תוך 7 ימי עסקים.`,
         },
         {
           title: "6. שינויים במדיניות",
@@ -40,7 +40,7 @@ export default function PrivacyPage() {
         },
         {
           title: "7. יצירת קשר",
-          body: `לשאלות בנושא פרטיות: privacy@mondi.app`,
+          body: `לשאלות בנושא פרטיות: bd12123@gmail.com`,
         },
       ].map((s) => (
         <div key={s.title} style={{ marginBottom: "1.75rem" }}>
