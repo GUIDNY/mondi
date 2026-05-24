@@ -77,11 +77,12 @@ const COMPETITIONS: { key: string; label: string; emoji: string }[] = [
   { key: "SA", label: "סריה א", emoji: "🇮🇹" },
 ];
 
-const FUTURE_LEAGUES: { key: string; label: string; emoji: string }[] = [
+const FUTURE_LEAGUES: { key: string; label: string; emoji?: string; logo?: string }[] = [
   { key: "PL", label: "פרמייר ליג", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
   { key: "LL", label: "לה ליגה", emoji: "🇪🇸" },
   { key: "SA", label: "סריה א", emoji: "🇮🇹" },
-  { key: "CL", label: "אלופות אירופה", emoji: "⭐" },
+  { key: "CL", label: "ליגת אלופות", logo: "/ucl-logo.png" },
+  { key: "IL", label: "ליגת העל", emoji: "🇮🇱" },
 ];
 
 function getCompetition(stage: string): string {
@@ -244,7 +245,10 @@ export default function PredictionsPage() {
                     textAlign: "right", direction: "rtl",
                   }}
                 >
-                  <span style={{ fontSize: "1.05rem" }}>{l.emoji}</span>
+                  {l.logo
+                    ? <img src={l.logo} alt={l.label} style={{ width: 22, height: 22, objectFit: "contain", flexShrink: 0 }} />
+                    : <span style={{ fontSize: "1.05rem" }}>{l.emoji}</span>
+                  }
                   {l.label}
                 </button>
               ))}
@@ -260,7 +264,12 @@ export default function PredictionsPage() {
           border: "1px solid rgba(92,222,151,0.12)",
           background: "rgba(255,255,255,0.02)",
         }}>
-          <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>{futureMeta.emoji}</div>
+          <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>
+            {futureMeta.logo
+              ? <img src={futureMeta.logo} alt={futureMeta.label} style={{ width: 64, height: 64, objectFit: "contain" }} />
+              : futureMeta.emoji
+            }
+          </div>
           <h2 style={{
             fontFamily: "Rubik,sans-serif", fontWeight: 800, fontSize: "1.6rem",
             color: "#fff", marginBottom: "0.5rem",
