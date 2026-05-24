@@ -1,5 +1,6 @@
 import { supabase, DbMatch } from "@/lib/supabase";
 import { STAGE_LABELS, STAGE_ORDER, Stage } from "@/lib/matches-data";
+import { getSession } from "@/lib/auth";
 import Link from "next/link";
 import LiveMatches from "@/components/LiveMatches";
 
@@ -9,7 +10,10 @@ function formatDate(d: string | null) {
 }
 
 export default async function Home() {
-  const { data: matchesRaw } = await supabase.from("matches").select("*").order("match_number");
+  const [{ data: matchesRaw }, session] = await Promise.all([
+    supabase.from("matches").select("*").order("match_number"),
+    getSession(),
+  ]);
   const matches = (matchesRaw || []) as DbMatch[];
 
   const byStage = STAGE_ORDER.reduce<Record<string, DbMatch[]>>((acc, stage) => {
@@ -99,7 +103,7 @@ export default async function Home() {
               background: "linear-gradient(90deg, #5cde97, #22c55e)",
               WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
               backgroundClip: "text",
-            }}>אלוף</span>
+            }}>{session?.username ?? "אורח"}</span>
           </h1>
           <p style={{ color: "rgba(188,202,189,0.7)", fontSize: "0.9rem", marginBottom: "1.75rem", fontWeight: 300, lineHeight: 1.65 }}>
             מונדיאל 2026 מתקרב — נחשו תוצאות, צברו נקודות, נצחו את החברים!

@@ -35,7 +35,11 @@ export async function POST(req: NextRequest) {
     if (!match) return NextResponse.json({ error: "משחק לא נמצא" }, { status: 404 });
     if (match.home_team === "TBD") return NextResponse.json({ error: "הקבוצות טרם נקבעו" }, { status: 400 });
     if (match.home_score !== null) return NextResponse.json({ error: "המשחק כבר נגמר" }, { status: 400 });
-    if (match.match_date && new Date(match.match_date) <= new Date())
+    // Use actual kickoff time from venue ("Comp||ISO_UTC") if available, else block at match_date midnight UTC
+    const kickoff = match.venue?.includes("||")
+      ? new Date(match.venue.split("||")[1])
+      : match.match_date ? new Date(match.match_date + "T21:00:00Z") : null;
+    if (kickoff && kickoff <= new Date())
       return NextResponse.json({ error: "המשחק כבר התחיל" }, { status: 400 });
 
     const points =

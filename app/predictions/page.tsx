@@ -77,6 +77,13 @@ const COMPETITIONS: { key: string; label: string; emoji: string }[] = [
   { key: "SA", label: "סריה א", emoji: "🇮🇹" },
 ];
 
+const FUTURE_LEAGUES: { key: string; label: string; emoji: string }[] = [
+  { key: "PL", label: "פרמייר ליג", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
+  { key: "LL", label: "לה ליגה", emoji: "🇪🇸" },
+  { key: "SA", label: "סריה א", emoji: "🇮🇹" },
+  { key: "CL", label: "אלופות אירופה", emoji: "⭐" },
+];
+
 function getCompetition(stage: string): string {
   if (WC_STAGES.has(stage)) return "WC";
   if (LL_STAGES.has(stage)) return "LL";
@@ -91,7 +98,9 @@ export default function PredictionsPage() {
   const [saved, setSaved] = useState<Record<number, boolean>>({});
   const [filter, setFilter] = useState<"all" | "pending" | "done">("all");
   const [activeGroup, setActiveGroup] = useState<string>("all");
-  const [competition, setCompetition] = useState<string>("PL");
+  const [competition, setCompetition] = useState<string>("WC");
+  const [showLeagueMenu, setShowLeagueMenu] = useState(false);
+  const [selectedFutureLeague, setSelectedFutureLeague] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const [mRes, pRes] = await Promise.all([fetch("/api/matches"), fetch("/api/predictions")]);
@@ -171,208 +180,282 @@ export default function PredictionsPage() {
 
   const currentComp = COMPETITIONS.find((c) => c.key === competition);
 
+  const futureMeta = selectedFutureLeague ? FUTURE_LEAGUES.find(l => l.key === selectedFutureLeague) : null;
+
   return (
-    <div>
+    <div onClick={() => { if (showLeagueMenu) setShowLeagueMenu(false); }}>
       {/* Competition tabs */}
-      <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
-        {availableComps.map((c) => {
-          const active = competition === c.key;
-          return (
-            <button key={c.key} onClick={() => { setCompetition(c.key); setFilter("all"); setActiveGroup("all"); }} style={{
-              display: "flex", alignItems: "center", gap: "0.5rem",
-              padding: "0.6rem 1.1rem", borderRadius: 12, border: "1.5px solid",
-              borderColor: active ? "rgba(92,222,151,0.5)" : "rgba(61,74,64,0.35)",
-              background: active ? "rgba(92,222,151,0.12)" : "rgba(255,255,255,0.03)",
-              color: active ? "var(--primary)" : "var(--on-surface-variant)",
-              cursor: "pointer", fontFamily: "Rubik,sans-serif",
-              fontWeight: active ? 700 : 400, fontSize: "0.9rem",
-              boxShadow: active ? "0 0 16px rgba(92,222,151,0.15)" : "none",
-              transition: "all 0.15s",
-            }}>
-              <span style={{ fontSize: "1.1rem" }}>{c.emoji}</span>
-              {c.label}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Header */}
-      <div style={{ marginBottom: "1.25rem" }}>
-        <h1 style={{
-          fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "1.6rem",
-          color: "#fff", letterSpacing: "0.02em", marginBottom: "0.2rem",
+      <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem", flexWrap: "wrap", alignItems: "center" }}>
+        {/* World Cup — only active competition */}
+        <button onClick={() => { setCompetition("WC"); setFilter("all"); setActiveGroup("all"); setSelectedFutureLeague(null); }} style={{
+          display: "flex", alignItems: "center", gap: "0.5rem",
+          padding: "0.6rem 1.1rem", borderRadius: 12, border: "1.5px solid",
+          borderColor: !selectedFutureLeague ? "rgba(92,222,151,0.5)" : "rgba(61,74,64,0.35)",
+          background: !selectedFutureLeague ? "rgba(92,222,151,0.12)" : "rgba(255,255,255,0.03)",
+          color: !selectedFutureLeague ? "var(--primary)" : "var(--on-surface-variant)",
+          cursor: "pointer", fontFamily: "Rubik,sans-serif",
+          fontWeight: !selectedFutureLeague ? 700 : 400, fontSize: "0.9rem",
+          boxShadow: !selectedFutureLeague ? "0 0 16px rgba(92,222,151,0.15)" : "none",
+          transition: "all 0.15s",
         }}>
-          {currentComp?.emoji} {currentComp?.label}
-        </h1>
-        <p style={{ color: "var(--on-surface-variant)", fontSize: "0.82rem" }}>
-          ניחשת {totalPredicted} מתוך {totalAvailable} משחקים
-        </p>
+          <span style={{ fontSize: "1.1rem" }}>🌍</span>
+          מונדיאל 2026
+        </button>
+
+        {/* Hamburger — future leagues */}
+        <div style={{ position: "relative", marginRight: "0.5rem" }}>
+          <button
+            onClick={() => setShowLeagueMenu((v) => !v)}
+            style={{
+              display: "flex", alignItems: "center", gap: "0.45rem",
+              padding: "0.6rem 1.1rem", borderRadius: 12, border: "1.5px solid",
+              borderColor: selectedFutureLeague ? "rgba(92,222,151,0.5)" : "rgba(61,74,64,0.35)",
+              background: selectedFutureLeague ? "rgba(92,222,151,0.08)" : "rgba(255,255,255,0.03)",
+              color: selectedFutureLeague ? "var(--primary)" : "var(--on-surface-variant)",
+              cursor: "pointer", fontFamily: "Rubik,sans-serif", fontSize: "0.9rem", fontWeight: 500,
+              transition: "all 0.15s",
+            }}
+          >
+            <span style={{ fontSize: "1rem", lineHeight: 1 }}>☰</span>
+            {selectedFutureLeague
+              ? (FUTURE_LEAGUES.find(l => l.key === selectedFutureLeague)?.label ?? "ליגות 26-27")
+              : "ליגות 26-27"}
+            <span style={{ fontSize: "0.65rem", opacity: 0.6, marginRight: "0.1rem" }}>▼</span>
+          </button>
+
+          {showLeagueMenu && (
+            <div style={{
+              position: "absolute", top: "calc(100% + 6px)", right: 0, zIndex: 100,
+              background: "#101e14", border: "1px solid rgba(92,222,151,0.2)",
+              borderRadius: 12, overflow: "hidden", minWidth: 180,
+              boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
+            }}>
+              {FUTURE_LEAGUES.map((l) => (
+                <button
+                  key={l.key}
+                  onClick={() => { setSelectedFutureLeague(l.key); setShowLeagueMenu(false); }}
+                  style={{
+                    display: "flex", alignItems: "center", gap: "0.6rem",
+                    width: "100%", padding: "0.7rem 1.1rem",
+                    background: selectedFutureLeague === l.key ? "rgba(92,222,151,0.1)" : "transparent",
+                    border: "none", borderBottom: "1px solid rgba(255,255,255,0.05)",
+                    color: selectedFutureLeague === l.key ? "var(--primary)" : "var(--on-surface)",
+                    cursor: "pointer", fontFamily: "Rubik,sans-serif", fontSize: "0.88rem",
+                    textAlign: "right", direction: "rtl",
+                  }}
+                >
+                  <span style={{ fontSize: "1.05rem" }}>{l.emoji}</span>
+                  {l.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Progress */}
-      {totalAvailable > 0 && (
-        <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 8, height: 4, marginBottom: "1.25rem", overflow: "hidden" }}>
-          <div style={{
-            height: "100%", borderRadius: 8,
-            background: "linear-gradient(90deg, var(--primary), #22c55e)",
-            width: `${Math.round((totalPredicted / totalAvailable) * 100)}%`,
-            boxShadow: "0 0 10px rgba(92,222,151,0.4)",
-            transition: "width 0.5s",
-          }} />
+      {/* Future league — coming soon */}
+      {selectedFutureLeague && futureMeta && (
+        <div className="glass-card" style={{
+          borderRadius: 24, padding: "4rem 2rem", textAlign: "center",
+          border: "1px solid rgba(92,222,151,0.12)",
+          background: "rgba(255,255,255,0.02)",
+        }}>
+          <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>{futureMeta.emoji}</div>
+          <h2 style={{
+            fontFamily: "Rubik,sans-serif", fontWeight: 800, fontSize: "1.6rem",
+            color: "#fff", marginBottom: "0.5rem",
+          }}>{futureMeta.label}</h2>
+          <p style={{
+            fontFamily: "Rubik,sans-serif", fontSize: "1rem", color: "var(--primary)",
+            fontWeight: 600, marginBottom: "0.5rem",
+          }}>נפגש בעונת 26-27 ⚽</p>
+          <p style={{ color: "var(--on-surface-variant)", fontSize: "0.85rem" }}>
+            הניחושים לליגה זו יפתחו בתחילת העונה
+          </p>
         </div>
       )}
 
-      {/* Filters */}
-      <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "1.25rem", alignItems: "center" }}>
-        <button style={chipStyle(filter === "all")} onClick={() => setFilter("all")}>הכל</button>
-        <button style={chipStyle(filter === "pending")} onClick={() => setFilter("pending")}>חסרים</button>
-        <button style={chipStyle(filter === "done")} onClick={() => setFilter("done")}>הושלמו</button>
-        {competition === "WC" && groups.length > 0 && (
-          <>
-            <div style={{ width: 1, height: 18, background: "rgba(61,74,64,0.5)", margin: "0 0.15rem" }} />
-            <button style={chipStyle(activeGroup === "all", "blue")} onClick={() => setActiveGroup("all")}>כל הבתים</button>
-            {groups.map((g) => (
-              <button key={g} style={chipStyle(activeGroup === g, "blue")} onClick={() => setActiveGroup(g)}>
-                בית {g}
-              </button>
-            ))}
-          </>
-        )}
-      </div>
-
-      {/* Match list */}
-      {(competition === "WC" ? STAGE_ORDER.filter(s => bySection[s]?.length) : Object.keys(bySection)).map((section) => {
-        const stageMatches = bySection[section];
-        if (!stageMatches?.length) return null;
-        const sectionLabel = competition === "WC"
-          ? (STAGE_LABELS[section as keyof typeof STAGE_LABELS] ?? section)
-          : section;
-        return (
-          <div key={section} style={{ marginBottom: "2rem" }}>
-            <h2 style={{
-              fontFamily: "Montserrat,sans-serif", fontWeight: 700, fontSize: "0.75rem",
-              color: "var(--on-surface-variant)", marginBottom: "0.65rem",
-              textTransform: "uppercase", letterSpacing: "0.1em",
+      {/* WC content — hidden when a future league is selected */}
+      {!selectedFutureLeague && (
+        <>
+          {/* Header */}
+          <div style={{ marginBottom: "1.25rem" }}>
+            <h1 style={{
+              fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "1.6rem",
+              color: "#fff", letterSpacing: "0.02em", marginBottom: "0.2rem",
             }}>
-              {sectionLabel}
-              {section === "group" && activeGroup !== "all" && ` — בית ${activeGroup}`}
-            </h2>
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
-              {stageMatches.map((m) => {
-                const pred = predictions[m.id];
-                const draft = drafts[m.id] || { home: "", away: "" };
-                const locked = isLocked(m);
-                const badge = pred ? pointsBadge(pred.points) : null;
+              {currentComp?.emoji} {currentComp?.label}
+            </h1>
+            <p style={{ color: "var(--on-surface-variant)", fontSize: "0.82rem" }}>
+              ניחשת {totalPredicted} מתוך {totalAvailable} משחקים
+            </p>
+          </div>
 
-                return (
-                  <div key={m.id} className="glass-card match-card" style={{
-                    borderRadius: 16, padding: "0.85rem 1rem",
-                    border: pred
-                      ? "1px solid rgba(92,222,151,0.18)"
-                      : "1px solid rgba(255,255,255,0.07)",
-                  }}>
-                    {/* Home team */}
-                    <div className="match-card-home">
-                      <span style={{ fontSize: "1.1rem", flexShrink: 0 }}>{m.home_flag}</span>
-                      <span className="team-name">{m.home_team}</span>
-                    </div>
+          {/* Progress */}
+          {totalAvailable > 0 && (
+            <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 8, height: 4, marginBottom: "1.25rem", overflow: "hidden" }}>
+              <div style={{
+                height: "100%", borderRadius: 8,
+                background: "linear-gradient(90deg, var(--primary), #22c55e)",
+                width: `${Math.round((totalPredicted / totalAvailable) * 100)}%`,
+                boxShadow: "0 0 10px rgba(92,222,151,0.4)",
+                transition: "width 0.5s",
+              }} />
+            </div>
+          )}
 
-                    {/* Score area */}
-                    <div className="match-card-score">
-                      {locked ? (
-                        <div style={{ textAlign: "center" }}>
-                          {m.home_score !== null ? (
-                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
-                              <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", direction: "ltr" }}>
-                                <div style={{ textAlign: "center" }}>
-                                  <div style={{ fontSize: "0.5rem", color: "var(--on-surface-variant)", marginBottom: "1px" }}>ניחוש</div>
-                                  <span style={{ fontWeight: 600, color: "var(--on-surface-variant)", fontSize: "0.8rem", fontFamily: "Montserrat,sans-serif" }}>
-                                    {pred ? `${pred.home_score}:${pred.away_score}` : "—"}
-                                  </span>
+          {/* Filters */}
+          <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "1.25rem", alignItems: "center" }}>
+            <button style={chipStyle(filter === "all")} onClick={() => setFilter("all")}>הכל</button>
+            <button style={chipStyle(filter === "pending")} onClick={() => setFilter("pending")}>חסרים</button>
+            <button style={chipStyle(filter === "done")} onClick={() => setFilter("done")}>הושלמו</button>
+            {competition === "WC" && groups.length > 0 && (
+              <>
+                <div style={{ width: 1, height: 18, background: "rgba(61,74,64,0.5)", margin: "0 0.15rem" }} />
+                <button style={chipStyle(activeGroup === "all", "blue")} onClick={() => setActiveGroup("all")}>כל הבתים</button>
+                {groups.map((g) => (
+                  <button key={g} style={chipStyle(activeGroup === g, "blue")} onClick={() => setActiveGroup(g)}>
+                    בית {g}
+                  </button>
+                ))}
+              </>
+            )}
+          </div>
+
+          {/* Match list */}
+          {(competition === "WC" ? STAGE_ORDER.filter(s => bySection[s]?.length) : Object.keys(bySection)).map((section) => {
+            const stageMatches = bySection[section];
+            if (!stageMatches?.length) return null;
+            const sectionLabel = competition === "WC"
+              ? (STAGE_LABELS[section as keyof typeof STAGE_LABELS] ?? section)
+              : section;
+            return (
+              <div key={section} style={{ marginBottom: "2rem" }}>
+                <h2 style={{
+                  fontFamily: "Montserrat,sans-serif", fontWeight: 700, fontSize: "0.75rem",
+                  color: "var(--on-surface-variant)", marginBottom: "0.65rem",
+                  textTransform: "uppercase", letterSpacing: "0.1em",
+                }}>
+                  {sectionLabel}
+                  {section === "group" && activeGroup !== "all" && ` — בית ${activeGroup}`}
+                </h2>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
+                  {stageMatches.map((m) => {
+                    const pred = predictions[m.id];
+                    const draft = drafts[m.id] || { home: "", away: "" };
+                    const locked = isLocked(m);
+                    const badge = pred ? pointsBadge(pred.points) : null;
+
+                    return (
+                      <div key={m.id} className="glass-card match-card" style={{
+                        borderRadius: 16, padding: "0.85rem 1rem",
+                        border: pred
+                          ? "1px solid rgba(92,222,151,0.18)"
+                          : "1px solid rgba(255,255,255,0.07)",
+                      }}>
+                        {/* Home team */}
+                        <div className="match-card-home">
+                          <span style={{ fontSize: "1.1rem", flexShrink: 0 }}>{m.home_flag}</span>
+                          <span className="team-name">{m.home_team}</span>
+                        </div>
+
+                        {/* Score area */}
+                        <div className="match-card-score">
+                          {locked ? (
+                            <div style={{ textAlign: "center" }}>
+                              {m.home_score !== null ? (
+                                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
+                                  <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", direction: "ltr" }}>
+                                    <div style={{ textAlign: "center" }}>
+                                      <div style={{ fontSize: "0.5rem", color: "var(--on-surface-variant)", marginBottom: "1px" }}>ניחוש</div>
+                                      <span style={{ fontWeight: 600, color: "var(--on-surface-variant)", fontSize: "0.8rem", fontFamily: "Montserrat,sans-serif" }}>
+                                        {pred ? `${pred.home_score}:${pred.away_score}` : "—"}
+                                      </span>
+                                    </div>
+                                    <span style={{ color: "var(--outline-variant)", fontSize: "0.75rem" }}>→</span>
+                                    <div style={{ textAlign: "center" }}>
+                                      <div style={{ fontSize: "0.5rem", color: "var(--primary)", marginBottom: "1px" }}>תוצאה</div>
+                                      <span style={{ fontWeight: 700, color: "var(--primary)", fontSize: "0.85rem", fontFamily: "Montserrat,sans-serif" }}>
+                                        {m.home_score}:{m.away_score}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  {badge && (
+                                    <span style={{
+                                      fontWeight: 700, fontSize: "0.7rem", borderRadius: 6,
+                                      padding: "1px 7px", background: badge.bg, color: badge.color,
+                                      border: `1px solid ${badge.border}`, whiteSpace: "nowrap",
+                                    }}>
+                                      {badge.text}
+                                    </span>
+                                  )}
                                 </div>
-                                <span style={{ color: "var(--outline-variant)", fontSize: "0.75rem" }}>→</span>
-                                <div style={{ textAlign: "center" }}>
-                                  <div style={{ fontSize: "0.5rem", color: "var(--primary)", marginBottom: "1px" }}>תוצאה</div>
-                                  <span style={{ fontWeight: 700, color: "var(--primary)", fontSize: "0.85rem", fontFamily: "Montserrat,sans-serif" }}>
-                                    {m.home_score}:{m.away_score}
-                                  </span>
-                                </div>
-                              </div>
-                              {badge && (
-                                <span style={{
-                                  fontWeight: 700, fontSize: "0.7rem", borderRadius: 6,
-                                  padding: "1px 7px", background: badge.bg, color: badge.color,
-                                  border: `1px solid ${badge.border}`, whiteSpace: "nowrap",
-                                }}>
-                                  {badge.text}
+                              ) : (
+                                <span style={{ color: "var(--on-surface-variant)", fontSize: "0.75rem", whiteSpace: "nowrap" }}>
+                                  {pred ? `${pred.home_score}:${pred.away_score} 🔒` : "🔒 נעול"}
                                 </span>
                               )}
                             </div>
                           ) : (
-                            <span style={{ color: "var(--on-surface-variant)", fontSize: "0.75rem", whiteSpace: "nowrap" }}>
-                              {pred ? `${pred.home_score}:${pred.away_score} 🔒` : "🔒 נעול"}
-                            </span>
+                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                                <input type="number" min={0} max={30}
+                                  value={draft.home}
+                                  onChange={(e) => setDrafts((d) => ({ ...d, [m.id]: { ...d[m.id], home: e.target.value } }))}
+                                  style={scoreInput}
+                                />
+                                <span style={{ color: "var(--outline-variant)", fontWeight: 700, fontSize: "1rem" }}>:</span>
+                                <input type="number" min={0} max={30}
+                                  value={draft.away}
+                                  onChange={(e) => setDrafts((d) => ({ ...d, [m.id]: { ...d[m.id], away: e.target.value } }))}
+                                  style={scoreInput}
+                                />
+                              </div>
+                              <button
+                                onClick={() => save(m.id)}
+                                disabled={saving[m.id] || draft.home === "" || draft.away === ""}
+                                style={{
+                                  background: saved[m.id] ? "rgba(34,197,94,0.85)" : "var(--primary)",
+                                  color: "var(--on-primary-container)", border: "none", borderRadius: 8,
+                                  padding: "5px 12px", fontWeight: 700, cursor: "pointer",
+                                  fontFamily: "Montserrat,sans-serif", fontSize: "0.75rem",
+                                  opacity: draft.home === "" || draft.away === "" ? 0.35 : 1,
+                                  boxShadow: "0 0 12px rgba(92,222,151,0.2)",
+                                  transition: "all 0.15s", whiteSpace: "nowrap",
+                                }}
+                              >
+                                {saved[m.id] ? "✓" : saving[m.id] ? "..." : "שמור"}
+                              </button>
+                            </div>
                           )}
                         </div>
-                      ) : (
-                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-                            <input type="number" min={0} max={30}
-                              value={draft.home}
-                              onChange={(e) => setDrafts((d) => ({ ...d, [m.id]: { ...d[m.id], home: e.target.value } }))}
-                              style={scoreInput}
-                            />
-                            <span style={{ color: "var(--outline-variant)", fontWeight: 700, fontSize: "1rem" }}>:</span>
-                            <input type="number" min={0} max={30}
-                              value={draft.away}
-                              onChange={(e) => setDrafts((d) => ({ ...d, [m.id]: { ...d[m.id], away: e.target.value } }))}
-                              style={scoreInput}
-                            />
-                          </div>
-                          <button
-                            onClick={() => save(m.id)}
-                            disabled={saving[m.id] || draft.home === "" || draft.away === ""}
-                            style={{
-                              background: saved[m.id] ? "rgba(34,197,94,0.85)" : "var(--primary)",
-                              color: "var(--on-primary-container)", border: "none", borderRadius: 8,
-                              padding: "5px 12px", fontWeight: 700, cursor: "pointer",
-                              fontFamily: "Montserrat,sans-serif", fontSize: "0.75rem",
-                              opacity: draft.home === "" || draft.away === "" ? 0.35 : 1,
-                              boxShadow: "0 0 12px rgba(92,222,151,0.2)",
-                              transition: "all 0.15s", whiteSpace: "nowrap",
-                            }}
-                          >
-                            {saved[m.id] ? "✓" : saving[m.id] ? "..." : "שמור"}
-                          </button>
+
+                        {/* Away team */}
+                        <div className="match-card-away">
+                          <span className="team-name" style={{ textAlign: "right" }}>{m.away_team}</span>
+                          <span style={{ fontSize: "1.1rem", flexShrink: 0 }}>{m.away_flag}</span>
                         </div>
-                      )}
-                    </div>
 
-                    {/* Away team */}
-                    <div className="match-card-away">
-                      <span className="team-name" style={{ textAlign: "right" }}>{m.away_team}</span>
-                      <span style={{ fontSize: "1.1rem", flexShrink: 0 }}>{m.away_flag}</span>
-                    </div>
-
-                    {/* Date row */}
-                    {!locked && (
-                      <div className="match-card-date">
-                        {formatDate(m)}{getVenueName(m.venue) ? ` · ${getVenueName(m.venue)}` : ""}
+                        {/* Date row */}
+                        {!locked && (
+                          <div className="match-card-date">
+                            {formatDate(m)}{getVenueName(m.venue) ? ` · ${getVenueName(m.venue)}` : ""}
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                );
-              })}
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+
+          {displayMatches.length === 0 && (
+            <div className="glass-card" style={{ textAlign: "center", padding: "3rem", borderRadius: 20, color: "var(--on-surface-variant)" }}>
+              אין משחקים להציג עם הסינון הנוכחי
             </div>
-          </div>
-        );
-      })}
-
-
-      {displayMatches.length === 0 && (
-        <div className="glass-card" style={{ textAlign: "center", padding: "3rem", borderRadius: 20, color: "var(--on-surface-variant)" }}>
-          אין משחקים להציג עם הסינון הנוכחי
-        </div>
+          )}
+        </>
       )}
     </div>
   );

@@ -21,11 +21,25 @@ interface FdMatch {
   };
 }
 
+function norm(s: string) {
+  return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+}
+
+// Stop-words to ignore when comparing by significant words
+const STOP = new Set(["fc", "cf", "rc", "ac", "sc", "cd", "sd", "rcd", "ca", "ud", "de", "del", "el", "la", "los", "las"]);
+
 function teamMatch(ourName: string | null, apiName: string | null): boolean {
   if (!ourName || !apiName) return false;
-  const a = ourName.toLowerCase().trim();
-  const b = apiName.toLowerCase().trim();
-  return a === b || a.includes(b) || b.includes(a);
+  const a = norm(ourName);
+  const b = norm(apiName);
+  if (a === b || a.includes(b) || b.includes(a)) return true;
+  // Word-intersection fallback: covers cases like "Celta Vigo" vs "RC Celta de Vigo"
+  const words = (s: string) => s.split(/\s+/).filter(w => w.length > 2 && !STOP.has(w));
+  const aw = words(a);
+  const bw = words(b);
+  if (!aw.length || !bw.length) return false;
+  const shared = aw.filter(w => bw.includes(w));
+  return shared.length >= Math.min(aw.length, bw.length);
 }
 
 function findOurMatch(
@@ -38,10 +52,17 @@ function findOurMatch(
     teamMatch(m.home_team, apiMatch.homeTeam.name) &&
     teamMatch(m.away_team, apiMatch.awayTeam.name);
 
-  return (
-    pool.find((m) => m.match_date?.slice(0, 10) === apiDay && byTeams(m)) ??
-    pool.find((m) => byTeams(m))
-  );
+  // Only match by date+teams. No date-free fallback — teams can play each other multiple
+  // times per season, so matching by teams alone would corrupt future match slots with
+  // historical results from earlier rounds.
+  return pool.find((m) => {
+    const matchDay = m.match_date?.slice(0, 10);
+    if (!matchDay) return false;
+    // Allow ±1 day tolerance (UTC date boundary edge cases)
+    const apiTs = new Date(apiDay).getTime();
+    const matchTs = new Date(matchDay).getTime();
+    return Math.abs(apiTs - matchTs) <= 86_400_000 && byTeams(m);
+  });
 }
 
 export async function GET(req: NextRequest) {
@@ -61,7 +82,7 @@ export async function GET(req: NextRequest) {
           headers: { "X-Auth-Token": process.env.FOOTBALL_DATA_API_KEY! },
           cache: "no-store",
         }),
-        fetch(`${FD_BASE}/competitions/${comp}/matches?status=FINISHED`, {
+        fetch(`${FD_BASE}/competitions/${comp}/matches?status=FINISHED&dateFrom=${new Date(Date.now() - 14 * 86_400_000).toISOString().slice(0, 10)}`, {
           headers: { "X-Auth-Token": process.env.FOOTBALL_DATA_API_KEY! },
           cache: "no-store",
         }),
@@ -125,19 +146,21 @@ export async function GET(req: NextRequest) {
 
       if (matchErr) continue;
 
-      // Only score predictions that haven't been scored yet
+      // Score predictions that haven't been scored yet — use UPDATE by id (reliable)
       const { data: preds } = (await supabase
         .from("predictions")
-        .select("*")
+        .select("id, home_score, away_score")
         .eq("match_id", ourMatch.id)
-        .is("points", null)) as { data: DbPrediction[] | null };
+        .is("points", null)) as { data: Pick<DbPrediction, "id" | "home_score" | "away_score">[] | null };
 
       if (preds?.length) {
-        const updates = preds.map((p) => ({
-          ...p,
-          points: calculatePoints(p.home_score, p.away_score, ft.home!, ft.away!),
-        }));
-        await supabase.from("predictions").upsert(updates);
+        for (const p of preds) {
+          const pts = calculatePoints(p.home_score, p.away_score, ft.home!, ft.away!);
+          await supabase
+            .from("predictions")
+            .update({ points: pts, updated_at: new Date().toISOString() })
+            .eq("id", p.id);
+        }
       }
 
       finishedUpdated++;
@@ -166,11 +189,41 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    // 4. Self-heal: find ANY prediction with null points where the match already has a score.
+    //    Catches anything the main loop missed, regardless of cause.
+    const { data: unscoredPreds } = await supabase
+      .from("predictions")
+      .select("id, match_id, home_score, away_score")
+      .is("points", null);
+
+    let healed = 0;
+    if (unscoredPreds?.length) {
+      const matchIds = [...new Set(unscoredPreds.map(p => p.match_id))];
+      const { data: scoredMatches } = await supabase
+        .from("matches")
+        .select("id, home_score, away_score")
+        .in("id", matchIds)
+        .not("home_score", "is", null);
+
+      const matchMap = new Map((scoredMatches ?? []).map(m => [m.id, m]));
+      for (const p of unscoredPreds) {
+        const m = matchMap.get(p.match_id);
+        if (!m || m.home_score == null || m.away_score == null) continue;
+        const pts = calculatePoints(p.home_score, p.away_score, m.home_score, m.away_score);
+        await supabase
+          .from("predictions")
+          .update({ points: pts, updated_at: new Date().toISOString() })
+          .eq("id", p.id);
+        healed++;
+      }
+    }
+
     return NextResponse.json({
       ok: true,
       live_updated: liveUpdated,
       finished_updated: finishedUpdated,
       time_synced: timeSynced,
+      healed,
       ts: new Date().toISOString(),
     });
   } catch (err) {

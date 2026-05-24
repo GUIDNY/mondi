@@ -39,7 +39,11 @@ function getLiveStatus(match: Match, now: number): "pre" | "live" | "post" | nul
   if (now >= ko - PRE && now < ko) return "pre";
   if (match.home_score !== null && now > ko + MAX_MATCH + POST_WINDOW) return null; // long gone
   if (match.home_score !== null && now >= ko + MAX_MATCH) return "post"; // likely finished
-  if (now >= ko && match.home_score === null) return "live"; // in progress (no score yet / updating)
+  if (now >= ko && match.home_score === null) {
+    // No score yet — live or pending update. Stop showing after MAX_MATCH window.
+    if (now <= ko + MAX_MATCH + POST_WINDOW) return "live";
+    return null;
+  }
   if (now >= ko && match.home_score !== null) {
     // Has score — could be live or finished. Show until 15 min after MAX_MATCH
     if (now <= ko + MAX_MATCH + POST_WINDOW) return "live";

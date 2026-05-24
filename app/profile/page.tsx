@@ -67,18 +67,24 @@ export default function ProfilePage() {
   const [tab, setTab] = useState<"stats" | "history">("stats");
 
   useEffect(() => {
-    Promise.all([
-      fetch("/api/auth/me").then(r => r.json()),
-      fetch("/api/matches").then(r => r.json()),
-      fetch("/api/predictions").then(r => r.json()),
-      fetch("/api/leaderboard").then(r => r.json()),
-    ]).then(([meData, matchData, predData, lbData]) => {
-      setMe(meData?.userId ? meData : null);
-      setMatches(Array.isArray(matchData) ? matchData : []);
-      setPredictions(Array.isArray(predData) ? predData : []);
-      setLeaderboard(Array.isArray(lbData) ? lbData : []);
-      setLoading(false);
-    });
+    const load = (isInitial = false) => {
+      const opts: RequestInit = { cache: "no-cache" };
+      Promise.all([
+        fetch("/api/auth/me", opts).then(r => r.json()),
+        fetch("/api/matches", opts).then(r => r.json()),
+        fetch("/api/predictions", opts).then(r => r.json()),
+        fetch("/api/leaderboard", opts).then(r => r.json()),
+      ]).then(([meData, matchData, predData, lbData]) => {
+        setMe(meData?.userId ? meData : null);
+        setMatches(Array.isArray(matchData) ? matchData : []);
+        setPredictions(Array.isArray(predData) ? predData : []);
+        setLeaderboard(Array.isArray(lbData) ? lbData : []);
+        if (isInitial) setLoading(false);
+      });
+    };
+    load(true);
+    const timer = setInterval(() => load(false), 60_000);
+    return () => clearInterval(timer);
   }, []);
 
   if (loading) return (
