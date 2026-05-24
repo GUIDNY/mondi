@@ -5,7 +5,16 @@ import Navbar from "@/components/Navbar";
 export const metadata: Metadata = {
   title: "mondi | ניחושי תוצאות מונדיאל 2026",
   description: "ניחשו תוצאות מונדיאל 2026, צברו נקודות, נצחו את החברים!",
-  icons: { icon: "/mondi-logo-new.png", apple: "/mondi-logo-new.png" },
+  icons: {
+    icon: "/icon-192.png",
+    apple: "/apple-touch-icon.png",
+  },
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Mondi",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
