@@ -56,7 +56,7 @@ export default function Navbar() {
   /* ── Top Header — RTL: logo on RIGHT, user on LEFT ── */
   const header = (
     <header style={{
-      position: "fixed", top: 0, left: 0, right: 0, height: "var(--header-h)",
+      position: "relative", height: "var(--header-h)",
       background: "rgba(14,21,16,0.88)", backdropFilter: "blur(14px)",
       borderBottom: "1px solid rgba(61,74,64,0.22)",
       boxShadow: "0 0 20px rgba(92,222,151,0.08)",
