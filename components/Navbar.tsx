@@ -248,7 +248,9 @@ export default function Navbar() {
         { href: "/profile", label: "פרופיל", icon: "person", exact: false },
         ...(session?.isAdmin
           ? [{ href: "/admin", label: "ניהול", icon: "admin_panel_settings", exact: false }]
-          : [{ href: "/login", label: "כניסה", icon: "person", exact: true }]),
+          : session
+            ? []
+            : [{ href: "/login", label: "כניסה", icon: "person", exact: true }]),
       ].map(item => {
         const active = item.exact ? path === item.href : path.startsWith(item.href);
         return (
