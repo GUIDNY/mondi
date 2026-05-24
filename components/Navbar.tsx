@@ -66,7 +66,7 @@ export default function Navbar() {
       {/* RIGHT side (start in RTL): logo + nav links */}
       <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
         <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <img src="/mondi-logo.svg" alt="mondi" style={{ width: 36, height: 36, borderRadius: 8 }} />
+          <img src="/mondi-logo-new.png" alt="mondi" style={{ width: 36, height: 36, borderRadius: 8 }} />
           <span style={{
             fontFamily: "'Arial Black', Montserrat, sans-serif", fontWeight: 900, fontSize: "1.4rem",
             background: "linear-gradient(135deg, #fff 0%, #ffe066 50%, #f0b429 100%)",

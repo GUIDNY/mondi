@@ -67,7 +67,7 @@ export default async function Home() {
           background: "linear-gradient(90deg, transparent, #f0b429, #ffe066, #f0b429, transparent)",
         }} />
         {/* Logo watermark */}
-        <img src="/mondi-logo.svg" alt="" aria-hidden style={{
+        <img src="/mondi-logo-new.png" alt="" aria-hidden style={{
           position: "absolute", left: -20, top: "50%", transform: "translateY(-50%)",
           width: 260, height: 260, opacity: 0.07, pointerEvents: "none",
           filter: "saturate(0) brightness(3)",
