@@ -264,10 +264,10 @@ export default function PredictionsPage() {
           border: "1px solid rgba(92,222,151,0.12)",
           background: "rgba(255,255,255,0.02)",
         }}>
-          <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
             {futureMeta.logo
-              ? <img src={futureMeta.logo} alt={futureMeta.label} style={{ width: 64, height: 64, objectFit: "contain" }} />
-              : futureMeta.emoji
+              ? <img src={futureMeta.logo} alt={futureMeta.label} style={{ width: 72, height: 72, objectFit: "contain" }} />
+              : <span style={{ fontSize: "3rem" }}>{futureMeta.emoji}</span>
             }
           </div>
           <h2 style={{

@@ -1,212 +1,195 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { STAGE_LABELS, STAGE_ORDER } from "@/lib/matches-data";
 
-interface Match {
-  id: number; group_name: string | null; stage: string; match_number: number;
-  home_team: string; home_flag: string; away_team: string; away_flag: string;
-  match_date: string | null; home_score: number | null; away_score: number | null;
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  is_admin: boolean;
+  created_at: string;
+  predictions_count: number;
+  total_points: number;
 }
 
-function formatDate(d: string | null) {
-  if (!d) return "";
-  return new Date(d).toLocaleDateString("he-IL", { day: "numeric", month: "short" });
+function formatDate(d: string) {
+  return new Date(d).toLocaleDateString("he-IL", {
+    day: "numeric", month: "short", year: "numeric",
+    hour: "2-digit", minute: "2-digit",
+  });
 }
 
-const scoreInput: React.CSSProperties = {
-  width: 46, textAlign: "center", padding: "6px 4px",
-  background: "rgba(255,255,255,0.05)", border: "1px solid rgba(61,74,64,0.6)",
-  borderRadius: 8, color: "var(--on-surface)", fontSize: "1rem", fontWeight: 700,
-  fontFamily: "Montserrat,sans-serif", outline: "none",
-};
+function avatar(name: string) {
+  return name[0]?.toUpperCase() ?? "?";
+}
 
 export default function AdminPage() {
-  const [matches, setMatches] = useState<Match[]>([]);
-  const [drafts, setDrafts] = useState<Record<number, { home: string; away: string }>>({});
-  const [saving, setSaving] = useState<Record<number, boolean>>({});
-  const [saved, setSaved] = useState<Record<number, boolean>>({});
-  const [filterStage, setFilterStage] = useState<string>("all");
-  const [status, setStatus] = useState("");
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
 
-  async function load() {
-    const res = await fetch("/api/admin/results");
-    if (!res.ok) { setStatus("אין הרשאות מנהל"); return; }
-    const data: Match[] = await res.json();
-    setMatches(data);
-    const dm: Record<number, { home: string; away: string }> = {};
-    for (const m of data) {
-      if (m.home_score !== null) dm[m.id] = { home: String(m.home_score), away: String(m.away_score ?? "") };
-    }
-    setDrafts(dm);
-  }
-
-  useEffect(() => { load(); }, []);
-
-  async function saveResult(matchId: number) {
-    const d = drafts[matchId];
-    if (!d || d.home === "" || d.away === "") return;
-    setSaving((s) => ({ ...s, [matchId]: true }));
-    try {
-      const res = await fetch("/api/admin/results", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ matchId, homeScore: Number(d.home), awayScore: Number(d.away) }),
+  useEffect(() => {
+    fetch("/api/admin/users")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.error) setError(d.error);
+        else setUsers(d);
+        setLoading(false);
       });
-      const data = await res.json();
-      if (res.ok) {
-        setSaved((s) => ({ ...s, [matchId]: true }));
-        setStatus(`✓ עודכן בהצלחה — ${data.updatedPredictions} ניחושים חושבו מחדש`);
-        setTimeout(() => setSaved((s) => ({ ...s, [matchId]: false })), 2500);
-        load();
-      } else setStatus("שגיאה: " + data.error);
-    } finally { setSaving((s) => ({ ...s, [matchId]: false })); }
-  }
+  }, []);
 
-  const displayMatches = matches.filter((m) => filterStage === "all" || m.stage === filterStage);
-  const byStage: Record<string, Match[]> = {};
-  for (const m of displayMatches) {
-    if (!byStage[m.stage]) byStage[m.stage] = [];
-    byStage[m.stage].push(m);
-  }
-  const completedCount = matches.filter((m) => m.home_score !== null).length;
+  const filtered = users.filter(
+    (u) =>
+      u.username.toLowerCase().includes(search.toLowerCase()) ||
+      u.email.toLowerCase().includes(search.toLowerCase())
+  );
 
-  function chipStyle(active: boolean): React.CSSProperties {
-    return {
-      padding: "5px 13px", borderRadius: 999, border: "1px solid",
-      borderColor: active ? "rgba(248,113,113,0.4)" : "rgba(61,74,64,0.5)",
-      background: active ? "rgba(248,113,113,0.1)" : "transparent",
-      color: active ? "#f87171" : "var(--on-surface-variant)",
-      cursor: "pointer", fontSize: "0.78rem", fontFamily: "inherit", transition: "all 0.15s",
-    };
-  }
+  const totalPredictions = users.reduce((s, u) => s + u.predictions_count, 0);
+  const activeUsers = users.filter((u) => u.predictions_count > 0).length;
+
+  if (loading) return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "50vh", color: "var(--on-surface-variant)", fontFamily: "Rubik,sans-serif" }}>
+      טוען...
+    </div>
+  );
+
+  if (error) return (
+    <div style={{ textAlign: "center", padding: "4rem", color: "#f87171", fontFamily: "Rubik,sans-serif" }}>
+      {error}
+    </div>
+  );
 
   return (
     <div>
       {/* Header */}
-      <div style={{ marginBottom: "1.5rem" }}>
+      <div style={{ marginBottom: "1.75rem" }}>
         <h1 style={{
           fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "1.8rem",
           color: "#fff", textTransform: "uppercase", letterSpacing: "0.03em", marginBottom: "0.3rem",
         }}>
-          Admin Panel
+          משתמשים
         </h1>
         <p style={{ color: "var(--on-surface-variant)", fontSize: "0.85rem" }}>
-          {completedCount} / {matches.length} תוצאות הוזנו · גישת מנהל בלבד
+          סקירת כל מי שנרשם לפני המונדיאל
         </p>
       </div>
 
-      {/* Progress */}
-      {matches.length > 0 && (
-        <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 8, height: 5, marginBottom: "1.5rem", overflow: "hidden" }}>
-          <div style={{
-            height: "100%", background: "linear-gradient(90deg, #f87171, #ef4444)",
-            width: `${Math.round((completedCount / matches.length) * 100)}%`,
-            boxShadow: "0 0 10px rgba(248,113,113,0.4)", transition: "width 0.5s",
-          }} />
-        </div>
-      )}
-
-      {/* Status */}
-      {status && (
-        <div style={{
-          background: status.startsWith("✓") ? "rgba(92,222,151,0.08)" : "rgba(248,113,113,0.08)",
-          border: `1px solid ${status.startsWith("✓") ? "rgba(92,222,151,0.25)" : "rgba(248,113,113,0.25)"}`,
-          borderRadius: 12, padding: "0.7rem 1rem", marginBottom: "1rem",
-          color: status.startsWith("✓") ? "var(--primary)" : "#f87171", fontSize: "0.85rem",
-        }}>
-          {status}
-        </div>
-      )}
-
-      {/* Stage filter */}
-      <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "1.5rem" }}>
-        <button style={chipStyle(filterStage === "all")} onClick={() => setFilterStage("all")}>הכל</button>
-        {STAGE_ORDER.map((s) => (
-          <button key={s} style={chipStyle(filterStage === s)} onClick={() => setFilterStage(s)}>
-            {STAGE_LABELS[s as keyof typeof STAGE_LABELS]}
-          </button>
+      {/* Stats row */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "0.75rem", marginBottom: "1.75rem" }}>
+        {[
+          { label: "סה״כ נרשמו", value: users.length, icon: "group", color: "var(--primary)" },
+          { label: "עם ניחושים", value: activeUsers, icon: "sports_soccer", color: "#60a5fa" },
+          { label: "ניחושים סה״כ", value: totalPredictions, icon: "check_circle", color: "#fbbf24" },
+          { label: "מנהלים", value: users.filter(u => u.is_admin).length, icon: "shield", color: "#f87171" },
+        ].map((s) => (
+          <div key={s.label} className="glass-card" style={{ borderRadius: 14, padding: "1rem", textAlign: "center" }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 22, color: s.color, marginBottom: "0.4rem", display: "block" }}>{s.icon}</span>
+            <div style={{ fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "1.6rem", color: s.color, lineHeight: 1 }}>{s.value}</div>
+            <div style={{ fontSize: "0.65rem", color: "var(--on-surface-variant)", marginTop: "0.3rem" }}>{s.label}</div>
+          </div>
         ))}
       </div>
 
-      {/* Match list */}
-      {STAGE_ORDER.map((stage) => {
-        const stageMatches = byStage[stage];
-        if (!stageMatches?.length) return null;
-        return (
-          <div key={stage} style={{ marginBottom: "2rem" }}>
-            <h2 style={{
-              fontFamily: "Montserrat,sans-serif", fontWeight: 700, fontSize: "0.75rem",
-              color: "var(--on-surface-variant)", marginBottom: "0.65rem",
-              textTransform: "uppercase", letterSpacing: "0.1em",
-            }}>
-              {STAGE_LABELS[stage as keyof typeof STAGE_LABELS]}
-            </h2>
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-              {stageMatches.map((m) => {
-                const draft = drafts[m.id] || { home: "", away: "" };
-                const hasResult = m.home_score !== null;
-                return (
-                  <div key={m.id} className="glass-card" style={{
-                    borderRadius: 14, padding: "0.8rem 1.1rem",
-                    display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap",
-                    border: hasResult ? "1px solid rgba(92,222,151,0.18)" : "1px solid rgba(255,255,255,0.07)",
-                  }}>
-                    <div style={{ color: "var(--on-surface-variant)", fontSize: "0.7rem", minWidth: 44 }}>
-                      {formatDate(m.match_date)}
-                    </div>
-                    <div style={{ flex: 1, display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                      <span style={{ fontSize: "1.1rem" }}>{m.home_flag}</span>
-                      <span style={{ fontSize: "0.85rem", fontWeight: 600 }}>{m.home_team}</span>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.45rem" }}>
-                      <input type="number" min={0} max={30}
-                        value={draft.home}
-                        onChange={(e) => setDrafts((d) => ({ ...d, [m.id]: { ...d[m.id], home: e.target.value } }))}
-                        style={scoreInput}
-                      />
-                      <span style={{ color: "var(--outline-variant)", fontWeight: 700 }}>:</span>
-                      <input type="number" min={0} max={30}
-                        value={draft.away}
-                        onChange={(e) => setDrafts((d) => ({ ...d, [m.id]: { ...d[m.id], away: e.target.value } }))}
-                        style={scoreInput}
-                      />
-                      <button
-                        onClick={() => saveResult(m.id)}
-                        disabled={saving[m.id] || draft.home === "" || draft.away === ""}
-                        style={{
-                          background: saved[m.id] ? "rgba(34,197,94,0.85)"
-                            : hasResult ? "rgba(92,222,151,0.15)" : "rgba(248,113,113,0.15)",
-                          color: saved[m.id] ? "#fff" : hasResult ? "var(--primary)" : "#f87171",
-                          border: `1px solid ${hasResult ? "rgba(92,222,151,0.3)" : "rgba(248,113,113,0.3)"}`,
-                          borderRadius: 8, padding: "6px 13px", fontWeight: 700, cursor: "pointer",
-                          fontFamily: "Montserrat,sans-serif", fontSize: "0.78rem",
-                          opacity: draft.home === "" || draft.away === "" ? 0.3 : 1,
-                          transition: "all 0.15s",
-                        }}
-                      >
-                        {saved[m.id] ? "✓" : saving[m.id] ? "..." : hasResult ? "עדכן" : "שמור"}
-                      </button>
-                    </div>
-                    <div style={{ flex: 1, display: "flex", alignItems: "center", gap: "0.4rem", justifyContent: "flex-end" }}>
-                      <span style={{ fontSize: "0.85rem", fontWeight: 600 }}>{m.away_team}</span>
-                      <span style={{ fontSize: "1.1rem" }}>{m.away_flag}</span>
-                    </div>
-                    {hasResult && (
-                      <div style={{
-                        background: "rgba(92,222,151,0.1)", border: "1px solid rgba(92,222,151,0.22)",
-                        borderRadius: 8, padding: "2px 10px", color: "var(--primary)",
-                        fontSize: "0.85rem", fontWeight: 700, fontFamily: "Montserrat,sans-serif",
-                      }}>
-                        {m.home_score}:{m.away_score}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+      {/* Search */}
+      <div style={{ position: "relative", marginBottom: "1rem" }}>
+        <span className="material-symbols-outlined" style={{
+          position: "absolute", right: "0.75rem", top: "50%", transform: "translateY(-50%)",
+          color: "var(--on-surface-variant)", fontSize: 18, pointerEvents: "none",
+        }}>search</span>
+        <input
+          type="text"
+          placeholder="חיפוש לפי שם או אימייל..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{
+            width: "100%", boxSizing: "border-box",
+            padding: "0.65rem 2.5rem 0.65rem 0.9rem",
+            background: "rgba(255,255,255,0.04)", border: "1px solid rgba(61,74,64,0.5)",
+            borderRadius: 12, color: "var(--on-surface)", fontFamily: "Rubik,sans-serif",
+            fontSize: "0.88rem", outline: "none", direction: "rtl",
+          }}
+        />
+      </div>
+
+      {/* User count */}
+      <div style={{ fontSize: "0.72rem", color: "var(--on-surface-variant)", marginBottom: "0.75rem" }}>
+        מציג {filtered.length} מתוך {users.length} משתמשים
+      </div>
+
+      {/* Users list */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+        {filtered.map((u, i) => (
+          <div key={u.id} className="glass-card" style={{
+            borderRadius: 14, padding: "0.85rem 1.1rem",
+            display: "flex", alignItems: "center", gap: "0.9rem", flexWrap: "wrap",
+            border: u.is_admin ? "1px solid rgba(248,113,113,0.2)" : "1px solid rgba(255,255,255,0.07)",
+          }}>
+            {/* Rank + Avatar */}
+            <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", flexShrink: 0 }}>
+              <span style={{
+                fontSize: "0.7rem", fontWeight: 700, color: "var(--on-surface-variant)",
+                fontFamily: "Montserrat,sans-serif", width: 20, textAlign: "center",
+              }}>
+                {i + 1}
+              </span>
+              <div style={{
+                width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
+                background: u.is_admin
+                  ? "linear-gradient(135deg, #f87171, #ef4444)"
+                  : "linear-gradient(135deg, var(--primary), #22c55e)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontFamily: "Rubik,sans-serif", fontWeight: 800, fontSize: "1rem",
+                color: "#051a0b",
+              }}>
+                {avatar(u.username)}
+              </div>
+            </div>
+
+            {/* Name + email */}
+            <div style={{ flex: 1, minWidth: 120 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <span style={{ fontWeight: 700, fontSize: "0.92rem", color: "#fff" }}>{u.username}</span>
+                {u.is_admin && (
+                  <span style={{ fontSize: "0.6rem", color: "#f87171", border: "1px solid rgba(248,113,113,0.35)", borderRadius: 5, padding: "1px 6px", fontWeight: 600 }}>
+                    מנהל
+                  </span>
+                )}
+              </div>
+              <div style={{ fontSize: "0.72rem", color: "var(--on-surface-variant)", direction: "ltr", textAlign: "right" }}>
+                {u.email}
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div style={{ display: "flex", gap: "1.25rem", flexShrink: 0 }}>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "1.1rem", color: "#60a5fa" }}>
+                  {u.predictions_count}
+                </div>
+                <div style={{ fontSize: "0.6rem", color: "var(--on-surface-variant)" }}>ניחושים</div>
+              </div>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "1.1rem", color: "var(--primary)" }}>
+                  {u.total_points}
+                </div>
+                <div style={{ fontSize: "0.6rem", color: "var(--on-surface-variant)" }}>נקודות</div>
+              </div>
+            </div>
+
+            {/* Date */}
+            <div style={{ fontSize: "0.68rem", color: "var(--on-surface-variant)", flexShrink: 0, textAlign: "left", direction: "ltr" }}>
+              {formatDate(u.created_at)}
             </div>
           </div>
-        );
-      })}
+        ))}
+
+        {filtered.length === 0 && (
+          <div className="glass-card" style={{ borderRadius: 16, padding: "3rem", textAlign: "center", color: "var(--on-surface-variant)" }}>
+            לא נמצאו משתמשים
+          </div>
+        )}
+      </div>
     </div>
   );
 }
