@@ -38,6 +38,7 @@ function CopyButton({ text }: { text: string }) {
 export default function GroupsPage() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isGuest, setIsGuest] = useState(false);
   const [tab, setTab] = useState<"my" | "create" | "join">("my");
   const [createForm, setCreateForm] = useState({
     name: "",
@@ -54,7 +55,10 @@ export default function GroupsPage() {
   const router = useRouter();
 
   useEffect(() => {
-    fetch("/api/groups").then(r => r.json()).then(d => { setGroups(Array.isArray(d) ? d : []); setLoading(false); });
+    fetch("/api/auth/me").then(r => r.json()).then(d => {
+      if (!d?.userId) { setIsGuest(true); setLoading(false); return; }
+      fetch("/api/groups").then(r => r.json()).then(d => { setGroups(Array.isArray(d) ? d : []); setLoading(false); });
+    });
   }, []);
 
   async function createGroup() {
@@ -98,6 +102,25 @@ export default function GroupsPage() {
       cursor: "pointer", fontFamily: "Rubik,sans-serif", fontWeight: tab === t ? 600 : 400,
       fontSize: "0.88rem", transition: "all 0.15s",
     }}>{label}</button>
+  );
+
+  if (isGuest) return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "60vh", textAlign: "center", padding: "2rem" }}>
+      <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🏆</div>
+      <h2 style={{ fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "1.5rem", color: "#fff", marginBottom: "0.5rem" }}>
+        הצטרף לקבוצות
+      </h2>
+      <p style={{ color: "var(--on-surface-variant)", fontSize: "0.9rem", marginBottom: "1.5rem", maxWidth: 280 }}>
+        כדי ליצור קבוצה ולהתחרות עם חברים, צריך להתחבר תחילה
+      </p>
+      <a href="/login" style={{
+        background: "var(--primary)", color: "var(--on-primary-container)",
+        fontWeight: 700, padding: "12px 28px", borderRadius: 10, textDecoration: "none",
+        fontSize: "0.9rem", fontFamily: "Rubik,sans-serif",
+      }}>
+        כניסה / הרשמה
+      </a>
+    </div>
   );
 
   return (

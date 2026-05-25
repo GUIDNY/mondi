@@ -226,8 +226,18 @@ export default function LoginPage() {
           </form>
         </div>
 
+        <div style={{ textAlign: "center", marginTop: "1rem" }}>
+          <a href="/" style={{
+            color: "var(--on-surface-variant)", fontSize: "0.8rem",
+            fontFamily: "Rubik,sans-serif", textDecoration: "none",
+            opacity: 0.7,
+          }}>
+            המשך כאורח ←
+          </a>
+        </div>
+
         {/* Bottom decoration */}
-        <p style={{ textAlign: "center", marginTop: "1.25rem", color: "rgba(188,202,189,0.3)", fontSize: "0.7rem", fontFamily: "Rubik,sans-serif" }}>
+        <p style={{ textAlign: "center", marginTop: "1rem", color: "rgba(188,202,189,0.3)", fontSize: "0.7rem", fontFamily: "Rubik,sans-serif" }}>
           🏟️ Stadium Elite · מונדיאל 2026
         </p>
       </div>

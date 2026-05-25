@@ -102,12 +102,16 @@ export default function PredictionsPage() {
   const [competition, setCompetition] = useState<string>("WC");
   const [showLeagueMenu, setShowLeagueMenu] = useState(false);
   const [selectedFutureLeague, setSelectedFutureLeague] = useState<string | null>(null);
+  const [isGuest, setIsGuest] = useState(false);
 
   const load = useCallback(async () => {
-    const [mRes, pRes] = await Promise.all([fetch("/api/matches"), fetch("/api/predictions")]);
+    const [mRes, meRes] = await Promise.all([fetch("/api/matches"), fetch("/api/auth/me")]);
     const mData: Match[] = await mRes.json();
-    const pData: Prediction[] = await pRes.json();
+    const me = await meRes.json();
     setMatches(mData);
+    if (!me?.userId) { setIsGuest(true); return; }
+    const pRes = await fetch("/api/predictions");
+    const pData: Prediction[] = await pRes.json();
     const predMap: Record<number, Prediction> = {};
     const draftMap: Record<number, { home: string; away: string }> = {};
     for (const p of pData) {
@@ -405,6 +409,13 @@ export default function PredictionsPage() {
                                 </span>
                               )}
                             </div>
+                          ) : isGuest ? (
+                            <a href="/login" style={{
+                              color: "var(--primary)", fontSize: "0.75rem", fontFamily: "Rubik,sans-serif",
+                              textDecoration: "none", whiteSpace: "nowrap", fontWeight: 600,
+                            }}>
+                              התחבר לניחוש
+                            </a>
                           ) : (
                             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
                               <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
