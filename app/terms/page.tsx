@@ -44,7 +44,7 @@ export default function TermsPage() {
         },
         {
           title: "8. יצירת קשר",
-          body: `לכל שאלה: support@mondi.app`,
+          body: `לכל שאלה: bd12123@gmail.com`,
         },
       ].map((s) => (
         <div key={s.title} style={{ marginBottom: "1.75rem" }}>
