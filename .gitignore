@@ -42,3 +42,4 @@ next-env.d.ts
 
 # SQLite database (contains user data)
 /data/
+# ios/ — tracked for Xcode Cloud
