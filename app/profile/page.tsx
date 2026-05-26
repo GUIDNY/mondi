@@ -65,6 +65,8 @@ export default function ProfilePage() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"stats" | "history">("stats");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     const load = (isInitial = false) => {
@@ -259,6 +261,46 @@ export default function ProfilePage() {
           )}
         </div>
       )}
+
+      {/* Delete account */}
+      <div style={{ marginTop: "2rem", paddingTop: "1.5rem", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        {!showDeleteConfirm ? (
+          <button onClick={() => setShowDeleteConfirm(true)} style={{
+            background: "transparent", border: "1px solid rgba(248,113,113,0.3)",
+            color: "#f87171", fontFamily: "Rubik,sans-serif", fontSize: "0.82rem",
+            fontWeight: 600, borderRadius: 10, padding: "0.6rem 1.2rem", cursor: "pointer",
+          }}>
+            מחיקת חשבון
+          </button>
+        ) : (
+          <div style={{ background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.25)", borderRadius: 14, padding: "1.25rem" }}>
+            <p style={{ color: "#f87171", fontFamily: "Rubik,sans-serif", fontWeight: 600, marginBottom: "0.75rem", fontSize: "0.9rem" }}>
+              האם אתה בטוח? הפעולה תמחק לצמיתות את כל הניחושים והנתונים שלך.
+            </p>
+            <div style={{ display: "flex", gap: "0.75rem" }}>
+              <button onClick={async () => {
+                setDeleting(true);
+                await fetch("/api/auth/delete-account", { method: "DELETE" });
+                window.location.href = "/";
+              }} disabled={deleting} style={{
+                background: "#f87171", color: "#fff", border: "none",
+                fontFamily: "Rubik,sans-serif", fontWeight: 700, fontSize: "0.88rem",
+                borderRadius: 10, padding: "0.6rem 1.2rem", cursor: deleting ? "not-allowed" : "pointer",
+                opacity: deleting ? 0.6 : 1,
+              }}>
+                {deleting ? "מוחק..." : "כן, מחק את החשבון שלי"}
+              </button>
+              <button onClick={() => setShowDeleteConfirm(false)} style={{
+                background: "transparent", border: "1px solid rgba(255,255,255,0.15)",
+                color: "var(--on-surface-variant)", fontFamily: "Rubik,sans-serif",
+                fontSize: "0.88rem", borderRadius: 10, padding: "0.6rem 1.2rem", cursor: "pointer",
+              }}>
+                ביטול
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* History tab */}
       {tab === "history" && (
