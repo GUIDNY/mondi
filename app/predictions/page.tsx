@@ -81,7 +81,7 @@ const FUTURE_LEAGUES: { key: string; label: string; emoji?: string; logo?: strin
   { key: "PL", label: "פרמייר ליג", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
   { key: "LL", label: "לה ליגה", emoji: "🇪🇸" },
   { key: "SA", label: "סריה א", emoji: "🇮🇹" },
-  { key: "CL", label: "ליגת אלופות", logo: "/ucl-logo.png" },
+  { key: "CL", label: "ליגת אלופות", emoji: "⭐" },
   { key: "IL", label: "ליגת העל", emoji: "🇮🇱" },
 ];
 

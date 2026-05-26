@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(curl -s -X POST https://api.supabase.com/v1/projects/buykrqnshafbvnuwthwd/database/query -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1eWtycW5zaGFmYnZudXd0aHdkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODQ3NDE2MSwiZXhwIjoyMDk0MDUwMTYxfQ.gHZ099lFSoUjY9FxbK11PwUV1vxMICOdYMPsV2_9yPQ' -H 'Content-Type: application/json' -d '{\"query\": \"ALTER TABLE matches ALTER COLUMN match_date TYPE timestamptz USING match_date::timestamptz;\"}')"
+    ]
+  }
+}
