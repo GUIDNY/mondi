@@ -71,18 +71,17 @@ const WC_STAGES = new Set(["group", "r32", "r16", "qf", "sf", "3rd", "final"]);
 const LL_STAGES = new Set(["LL"]);
 
 const COMPETITIONS: { key: string; label: string; emoji: string }[] = [
-  { key: "PL", label: "פרמייר ליג", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
-  { key: "LL", label: "לה ליגה", emoji: "🇪🇸" },
+  { key: "PL", label: "אנגליה", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
+  { key: "LL", label: "ספרד", emoji: "🇪🇸" },
   { key: "WC", label: "אליפות 2026", emoji: "🌍" },
-  { key: "SA", label: "סריה א", emoji: "🇮🇹" },
+  { key: "SA", label: "איטליה", emoji: "🇮🇹" },
 ];
 
 const FUTURE_LEAGUES: { key: string; label: string; emoji?: string; logo?: string }[] = [
-  { key: "PL", label: "פרמייר ליג", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
-  { key: "LL", label: "לה ליגה", emoji: "🇪🇸" },
-  { key: "SA", label: "סריה א", emoji: "🇮🇹" },
-  
-  { key: "IL", label: "ליגת העל", emoji: "🇮🇱" },
+  { key: "PL", label: "אנגליה", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
+  { key: "LL", label: "ספרד", emoji: "🇪🇸" },
+  { key: "SA", label: "איטליה", emoji: "🇮🇹" },
+  { key: "IL", label: "ישראל", emoji: "🇮🇱" },
 ];
 
 function getCompetition(stage: string): string {
