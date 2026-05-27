@@ -121,7 +121,7 @@ export default function LoginPage() {
             mondi
           </div>
           <p style={{ color: "rgba(188,202,189,0.7)", fontSize: "0.8rem", marginTop: "0.3rem", fontFamily: "Rubik, sans-serif" }}>
-            ניחושי תוצאות מונדיאל 2026 🏆
+            ניחושי תוצאות כדורגל 2026 ⚽
           </p>
         </div>
 
@@ -238,7 +238,7 @@ export default function LoginPage() {
 
         {/* Bottom decoration */}
         <p style={{ textAlign: "center", marginTop: "1rem", color: "rgba(188,202,189,0.3)", fontSize: "0.7rem", fontFamily: "Rubik,sans-serif" }}>
-          🏟️ Stadium Elite · מונדיאל 2026
+          🏟️ Stadium Elite · אליפות 2026
         </p>
       </div>
     </div>

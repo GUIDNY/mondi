@@ -73,7 +73,7 @@ const LL_STAGES = new Set(["LL"]);
 const COMPETITIONS: { key: string; label: string; emoji: string }[] = [
   { key: "PL", label: "פרמייר ליג", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
   { key: "LL", label: "לה ליגה", emoji: "🇪🇸" },
-  { key: "WC", label: "מונדיאל 2026", emoji: "🌍" },
+  { key: "WC", label: "אליפות 2026", emoji: "🌍" },
   { key: "SA", label: "סריה א", emoji: "🇮🇹" },
 ];
 
@@ -81,7 +81,7 @@ const FUTURE_LEAGUES: { key: string; label: string; emoji?: string; logo?: strin
   { key: "PL", label: "פרמייר ליג", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
   { key: "LL", label: "לה ליגה", emoji: "🇪🇸" },
   { key: "SA", label: "סריה א", emoji: "🇮🇹" },
-  { key: "CL", label: "ליגת אלופות", emoji: "⭐" },
+  
   { key: "IL", label: "ליגת העל", emoji: "🇮🇱" },
 ];
 
@@ -191,7 +191,7 @@ export default function PredictionsPage() {
     <div onClick={() => { if (showLeagueMenu) setShowLeagueMenu(false); }}>
       {/* Competition tabs */}
       <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem", flexWrap: "wrap", alignItems: "center" }}>
-        {/* World Cup — only active competition */}
+        {/* Main competition — only active */}
         <button onClick={() => { setCompetition("WC"); setFilter("all"); setActiveGroup("all"); setSelectedFutureLeague(null); }} style={{
           display: "flex", alignItems: "center", gap: "0.5rem",
           padding: "0.6rem 1.1rem", borderRadius: 12, border: "1.5px solid",
@@ -204,7 +204,7 @@ export default function PredictionsPage() {
           transition: "all 0.15s",
         }}>
           <span style={{ fontSize: "1.1rem" }}>🌍</span>
-          מונדיאל 2026
+          אליפות 2026
         </button>
 
         {/* Hamburger — future leagues */}

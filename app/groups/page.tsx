@@ -268,7 +268,7 @@ export default function GroupsPage() {
                       <span style={{ fontSize: "1.3rem" }}>🏆</span>
                       <div>
                         <div style={{ fontWeight: 600, fontSize: "0.88rem" }}>ניחוש אלוף</div>
-                        <div style={{ fontSize: "0.7rem", color: "var(--on-surface-variant)" }}>כל אחד בוחר מי יזכה במונדיאל</div>
+                        <div style={{ fontSize: "0.7rem", color: "var(--on-surface-variant)" }}>כל אחד בוחר מי יזכה באליפות</div>
                       </div>
                     </div>
                     <button onClick={() => setCreateForm(f => ({ ...f, has_champion_pick: !f.has_champion_pick }))} style={{

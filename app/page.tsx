@@ -106,7 +106,7 @@ export default async function Home() {
             }}>{session?.username ?? "אורח"}</span>
           </h1>
           <p style={{ color: "rgba(188,202,189,0.7)", fontSize: "0.9rem", marginBottom: "1.75rem", fontWeight: 300, lineHeight: 1.65 }}>
-            מונדיאל 2026 מתקרב — נחשו תוצאות, צברו נקודות, נצחו את החברים!
+            אליפות כדורגל 2026 מתקרבת — נחשו תוצאות, צברו נקודות, נצחו את החברים!
           </p>
 
           {/* Stats */}

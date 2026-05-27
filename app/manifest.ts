@@ -2,9 +2,9 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Mondi — ניחושי מונדיאל 2026",
+    name: "Mondi — ניחושי כדורגל 2026",
     short_name: "Mondi",
-    description: "האפליקציה הימורים למונדיאל 2026",
+    description: "אפליקציית ניחושי כדורגל 2026",
     start_url: "/",
     display: "standalone",
     background_color: "#061209",

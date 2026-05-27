@@ -71,7 +71,7 @@ export default function AdminPage() {
           משתמשים
         </h1>
         <p style={{ color: "var(--on-surface-variant)", fontSize: "0.85rem" }}>
-          סקירת כל מי שנרשם לפני המונדיאל
+          סקירת כל מי שנרשם לפני האליפות
         </p>
       </div>
 

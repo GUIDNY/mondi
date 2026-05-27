@@ -355,7 +355,7 @@ export default function GroupDetailPage() {
               <span style={{ fontSize: "1.5rem" }}>🏆</span>
               <div>
                 <h2 style={{ fontFamily: "Rubik,sans-serif", fontWeight: 800, fontSize: "1.05rem", margin: 0, color: "#fff" }}>
-                  מי יזכה במונדיאל 2026?
+                  מי יזכה באליפות 2026?
                 </h2>
                 <p style={{ fontSize: "0.75rem", color: "var(--on-surface-variant)", margin: "0.2rem 0 0" }}>
                   בחרו נבחרת — הניחוש ייכנס ללוח התוצאות של הקבוצה

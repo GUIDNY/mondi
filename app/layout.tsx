@@ -4,8 +4,8 @@ import Navbar from "@/components/Navbar";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "mondi | ניחושי תוצאות מונדיאל 2026",
-  description: "ניחשו תוצאות מונדיאל 2026, צברו נקודות, נצחו את החברים!",
+  title: "mondi | ניחושי תוצאות כדורגל 2026",
+  description: "ניחשו תוצאות משחקי כדורגל 2026, צברו נקודות, נצחו את החברים!",
   icons: {
     icon: "/icon-192.png",
     apple: "/apple-touch-icon.png",
