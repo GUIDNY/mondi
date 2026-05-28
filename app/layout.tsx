@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "mondi | ניחושי תוצאות כדורגל 2026",
+  title: "MatchMate | ניחושי תוצאות כדורגל 2026",
   description: "ניחשו תוצאות משחקי כדורגל 2026, צברו נקודות, נצחו את החברים!",
   icons: {
     icon: "/icon-192.png",
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Mondi",
+    title: "MatchMate",
   },
 };
 
@@ -52,7 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               תנאי שימוש
             </Link>
             <span style={{ color: "var(--on-surface-variant)", fontSize: "0.72rem" }}>
-              © 2026 Mondi
+              © 2026 MatchMate
             </span>
           </footer>
         </div>

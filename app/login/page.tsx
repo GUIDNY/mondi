@@ -118,7 +118,7 @@ export default function LoginPage() {
             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
             backgroundClip: "text", letterSpacing: "0.04em",
           }}>
-            mondi
+            MatchMate
           </div>
           <p style={{ color: "rgba(188,202,189,0.7)", fontSize: "0.8rem", marginTop: "0.3rem", fontFamily: "Rubik, sans-serif" }}>
             ניחושי תוצאות כדורגל 2026 ⚽

@@ -75,7 +75,7 @@ export default function Navbar() {
             backgroundClip: "text",
             direction: "ltr", display: "inline-block", letterSpacing: "0.02em",
           }}>
-            mondi
+            MatchMate
           </span>
         </Link>
         <nav className="header-nav-links" style={{ display: "flex", gap: "1.5rem" }}>

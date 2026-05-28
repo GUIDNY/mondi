@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Mondi — ניחושי כדורגל 2026",
-    short_name: "Mondi",
+    name: "MatchMate — ניחושי כדורגל 2026",
+    short_name: "MatchMate",
     description: "אפליקציית ניחושי כדורגל 2026",
     start_url: "/",
     display: "standalone",
