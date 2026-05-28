@@ -106,7 +106,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: "1.75rem" }}>
           <img
-            src="/mondi-logo-new.png" alt="mondi"
+            src="/mondi-logo-new.png" alt="MatchMate"
             style={{ width: 96, height: 96, borderRadius: 20, marginBottom: "0.75rem",
               filter: "drop-shadow(0 0 20px rgba(255,200,50,0.35))",
               display: "block", margin: "0 auto 0.75rem",
