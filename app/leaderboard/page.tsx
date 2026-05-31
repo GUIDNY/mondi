@@ -32,7 +32,7 @@ export default async function LeaderboardPage() {
           fontFamily: "Montserrat,sans-serif", fontWeight: 800, fontSize: "1.8rem",
           color: "#fff", textTransform: "uppercase", letterSpacing: "0.03em", marginBottom: "0.3rem",
         }}>
-          VIP Leaderboard
+          טבלת דירוג
         </h1>
         <p style={{ color: "var(--on-surface-variant)", fontSize: "0.85rem" }}>
           {rows.length} משתתפים · מתעדכן אחרי כל משחק

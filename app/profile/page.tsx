@@ -165,7 +165,7 @@ export default function ProfilePage() {
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
               <span className="material-symbols-outlined" style={{ fontSize: 16, color: "var(--primary)" }}>military_tech</span>
-              <span style={{ fontSize: "0.78rem", color: "var(--on-surface-variant)" }}>PRO BETTOR · Diamond Tier</span>
+              <span style={{ fontSize: "0.78rem", color: "var(--on-surface-variant)" }}>שחקן מובחר</span>
             </div>
           </div>
 
@@ -280,8 +280,11 @@ export default function ProfilePage() {
             <div style={{ display: "flex", gap: "0.75rem" }}>
               <button onClick={async () => {
                 setDeleting(true);
-                await fetch("/api/auth/delete-account", { method: "DELETE" });
-                window.location.href = "/";
+                try {
+                  const res = await fetch("/api/auth/delete-account", { method: "DELETE" });
+                  if (res.ok) window.location.href = "/";
+                  else setDeleting(false);
+                } catch { setDeleting(false); }
               }} disabled={deleting} style={{
                 background: "#f87171", color: "#fff", border: "none",
                 fontFamily: "Rubik,sans-serif", fontWeight: 700, fontSize: "0.88rem",

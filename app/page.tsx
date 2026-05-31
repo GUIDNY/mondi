@@ -91,7 +91,7 @@ export default async function Home() {
             letterSpacing: "0.12em", textTransform: "uppercase",
             marginBottom: "1rem", fontFamily: "Rubik,sans-serif",
           }}>
-            ◆ DIAMOND MEMBER
+            ◆ שחקן פעיל
           </span>
 
           <h1 style={{

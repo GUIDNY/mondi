@@ -238,7 +238,7 @@ export default function LoginPage() {
 
         {/* Bottom decoration */}
         <p style={{ textAlign: "center", marginTop: "1rem", color: "rgba(188,202,189,0.3)", fontSize: "0.7rem", fontFamily: "Rubik,sans-serif" }}>
-          🏟️ Stadium Elite · אליפות 2026
+          ⚽ MatchMate · אליפות 2026
         </p>
       </div>
     </div>

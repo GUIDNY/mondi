@@ -67,7 +67,7 @@ export default function Navbar() {
       {/* RIGHT side (start in RTL): logo + nav links */}
       <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
         <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <img src="/mondi-logo-new.png" alt="mondi" style={{ width: 36, height: 36, borderRadius: 8 }} />
+          <img src="/mondi-logo-new.png" alt="MatchMate" style={{ width: 36, height: 36, borderRadius: 8 }} />
           <span style={{
             fontFamily: "'Arial Black', Montserrat, sans-serif", fontWeight: 900, fontSize: "1.4rem",
             background: "linear-gradient(135deg, #fff 0%, #ffe066 50%, #f0b429 100%)",
@@ -176,8 +176,8 @@ export default function Navbar() {
             <div style={{
               fontFamily: "Rubik,sans-serif", fontWeight: 800, fontSize: "0.78rem",
               color: "var(--primary)", fontStyle: "italic", textTransform: "uppercase", letterSpacing: "0.05em",
-            }}>PRO BETTOR</div>
-            <div style={{ fontSize: "0.68rem", color: "var(--on-surface-variant)" }}>Tier: Diamond</div>
+            }}>שחקן מובחר</div>
+            <div style={{ fontSize: "0.68rem", color: "var(--on-surface-variant)" }}>רמת ניחוש: מובחר</div>
           </div>
         </div>
 
