@@ -2,6 +2,25 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { getSession } from "@/lib/auth";
 
+// PATCH /api/groups/[code] — update rules/prizes (creator only)
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ code: string }> }) {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { code } = await params;
+  const body = await req.json();
+  const { rules, prize_1st, prize_2nd, prize_3rd } = body;
+
+  const { data: group } = await supabase.from("groups").select("id, creator_id").eq("code", code.toUpperCase()).maybeSingle();
+  if (!group) return NextResponse.json({ error: "קבוצה לא נמצאה" }, { status: 404 });
+  if (group.creator_id !== session.userId) return NextResponse.json({ error: "רק יוצר הקבוצה יכול לערוך" }, { status: 403 });
+
+  const { error } = await supabase.from("groups").update({ rules, prize_1st, prize_2nd, prize_3rd }).eq("id", group.id);
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  return NextResponse.json({ ok: true });
+}
+
 // GET /api/groups/[code] — group detail + leaderboard
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ code: string }> }) {
   const session = await getSession();

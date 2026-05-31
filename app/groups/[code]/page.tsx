@@ -31,6 +31,10 @@ interface Group {
   top_scorer_bonus_pts: number;
   champion_result: string | null;
   top_scorer_result: string | null;
+  rules: string | null;
+  prize_1st: string | null;
+  prize_2nd: string | null;
+  prize_3rd: string | null;
 }
 
 interface GroupData {
@@ -85,7 +89,12 @@ export default function GroupDetailPage() {
   const { code } = useParams<{ code: string }>();
   const [data, setData] = useState<GroupData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"board" | "picks" | "settings">("board");
+  const [tab, setTab] = useState<"board" | "picks" | "rules" | "settings">("board");
+
+  // Rules form
+  const [rules, setRules] = useState({ rules: "", prize_1st: "", prize_2nd: "", prize_3rd: "" });
+  const [rulesSaving, setRulesSaving] = useState(false);
+  const [rulesStatus, setRulesStatus] = useState("");
 
   // My picks form
   const [picks, setPicks] = useState({ champion_pick: "", top_scorer_pick: "" });
@@ -117,6 +126,12 @@ export default function GroupDetailPage() {
             top_scorer_bonus_pts: d.group.top_scorer_bonus_pts,
             champion_result: d.group.champion_result ?? "",
             top_scorer_result: d.group.top_scorer_result ?? "",
+          });
+          setRules({
+            rules: d.group.rules ?? "",
+            prize_1st: d.group.prize_1st ?? "",
+            prize_2nd: d.group.prize_2nd ?? "",
+            prize_3rd: d.group.prize_3rd ?? "",
           });
         }
         setLoading(false);
@@ -249,6 +264,7 @@ export default function GroupDetailPage() {
       <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
         {chipTab("board", `🏅 לוח תוצאות (${leaderboard.length})`)}
         {chipTab("picks", "🏆 ניחוש אלוף")}
+        {chipTab("rules", "📋 תקנון")}
         {is_creator ? chipTab("settings", "⚙️ הגדרות") : null}
       </div>
 
@@ -454,6 +470,102 @@ export default function GroupDetailPage() {
                 {group.top_scorer_result && (
                   <span style={{ color: "var(--primary)", marginRight: "0.5rem" }}>· תוצאה: {group.top_scorer_result}</span>
                 )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Rules tab */}
+      {tab === "rules" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          {/* Prizes display */}
+          {(group.prize_1st || group.prize_2nd || group.prize_3rd) && (
+            <div className="glass-card" style={{ borderRadius: 16, padding: "1.25rem 1.5rem" }}>
+              <div style={{ fontFamily: "Rubik,sans-serif", fontWeight: 700, fontSize: "0.85rem", color: "var(--primary)", marginBottom: "1rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                🏆 פרסים
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+                {[
+                  { place: "🥇 מקום ראשון", val: group.prize_1st },
+                  { place: "🥈 מקום שני", val: group.prize_2nd },
+                  { place: "🥉 מקום שלישי", val: group.prize_3rd },
+                ].filter(p => p.val).map(p => (
+                  <div key={p.place} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontFamily: "Rubik,sans-serif", fontSize: "0.9rem", color: "var(--on-surface-variant)" }}>{p.place}</span>
+                    <span style={{ fontFamily: "Montserrat,sans-serif", fontWeight: 700, fontSize: "1rem", color: "#fff" }}>{p.val}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Rules text */}
+          <div className="glass-card" style={{ borderRadius: 16, padding: "1.25rem 1.5rem" }}>
+            <div style={{ fontFamily: "Rubik,sans-serif", fontWeight: 700, fontSize: "0.85rem", color: "var(--primary)", marginBottom: "0.75rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+              📋 תקנון הקבוצה
+            </div>
+            {group.rules ? (
+              <p style={{ fontFamily: "Rubik,sans-serif", fontSize: "0.92rem", color: "var(--on-surface)", lineHeight: 1.75, whiteSpace: "pre-wrap" }}>
+                {group.rules}
+              </p>
+            ) : (
+              <p style={{ color: "var(--on-surface-variant)", fontSize: "0.85rem", fontFamily: "Rubik,sans-serif" }}>
+                {is_creator ? "לא הוגדר עדיין — עבור להגדרות כדי להוסיף תקנון." : "לא הוגדר תקנון לקבוצה זו."}
+              </p>
+            )}
+          </div>
+
+          {/* Edit form for creator */}
+          {is_creator && (
+            <div className="glass-card" style={{ borderRadius: 16, padding: "1.25rem 1.5rem" }}>
+              <div style={{ fontFamily: "Rubik,sans-serif", fontWeight: 700, fontSize: "0.85rem", color: "var(--on-surface-variant)", marginBottom: "1rem", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                ✏️ עריכה (רק לך)
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.9rem" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.72rem", color: "var(--on-surface-variant)", marginBottom: "0.35rem", fontFamily: "Rubik,sans-serif" }}>תקנון / כללים</label>
+                  <textarea
+                    value={rules.rules}
+                    onChange={e => setRules(r => ({ ...r, rules: e.target.value }))}
+                    rows={4}
+                    placeholder="כתוב כאן את כללי הקבוצה..."
+                    style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, color: "#fff", fontFamily: "Rubik,sans-serif", fontSize: "0.88rem", padding: "0.75rem", resize: "vertical", outline: "none", boxSizing: "border-box" }}
+                  />
+                </div>
+                {[
+                  { key: "prize_1st" as const, label: "🥇 פרס מקום ראשון", placeholder: "לדוגמה: 100 ₪" },
+                  { key: "prize_2nd" as const, label: "🥈 פרס מקום שני", placeholder: "לדוגמה: 50 ₪" },
+                  { key: "prize_3rd" as const, label: "🥉 פרס מקום שלישי", placeholder: "לדוגמה: 25 ₪" },
+                ].map(f => (
+                  <div key={f.key}>
+                    <label style={{ display: "block", fontSize: "0.72rem", color: "var(--on-surface-variant)", marginBottom: "0.35rem", fontFamily: "Rubik,sans-serif" }}>{f.label}</label>
+                    <input
+                      value={rules[f.key]}
+                      onChange={e => setRules(r => ({ ...r, [f.key]: e.target.value }))}
+                      placeholder={f.placeholder}
+                      style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, color: "#fff", fontFamily: "Rubik,sans-serif", fontSize: "0.88rem", padding: "0.65rem 0.9rem", outline: "none", boxSizing: "border-box" }}
+                    />
+                  </div>
+                ))}
+                <button
+                  onClick={async () => {
+                    setRulesSaving(true);
+                    const res = await fetch(`/api/groups/${code}`, {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify(rules),
+                    });
+                    setRulesSaving(false);
+                    setRulesStatus(res.ok ? "✓ נשמר!" : "שגיאה");
+                    if (res.ok) load();
+                    setTimeout(() => setRulesStatus(""), 2000);
+                  }}
+                  disabled={rulesSaving}
+                  style={{ background: "var(--primary)", color: "#051a0b", fontFamily: "Rubik,sans-serif", fontWeight: 700, fontSize: "0.9rem", border: "none", borderRadius: 10, padding: "0.7rem", cursor: rulesSaving ? "not-allowed" : "pointer", opacity: rulesSaving ? 0.6 : 1 }}
+                >
+                  {rulesSaving ? "שומר..." : rulesStatus || "שמור תקנון"}
+                </button>
               </div>
             </div>
           )}
