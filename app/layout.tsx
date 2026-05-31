@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
-import OnboardingRedirect from "@/components/OnboardingRedirect";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -38,7 +37,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
-        <OnboardingRedirect />
         <Navbar />
         <div className="page-shell">
           <div className="page-inner">{children}</div>
