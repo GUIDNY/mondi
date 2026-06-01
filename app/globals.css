@@ -86,14 +86,15 @@ h1, h2, h3, h4 {
 .bottomnav {
   display: none;
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 64px;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  height: 62px;
   background: rgba(9,16,11,0.96);
   backdrop-filter: blur(24px);
-  border-top: 1px solid rgba(61,74,64,0.2);
-  box-shadow: 0 -4px 24px rgba(0,0,0,0.5);
+  border: 1px solid rgba(61,74,64,0.3);
+  border-radius: 20px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.6);
   z-index: 300;
   align-items: center;
   justify-content: space-around;
@@ -101,7 +102,7 @@ h1, h2, h3, h4 {
 
 @media (max-width: 1023px) {
   .sidebar { display: none !important; }
-  .page-shell { padding-right: 0; padding-bottom: 64px; }
+  .page-shell { padding-right: 0; padding-bottom: 86px; }
   .bottomnav { display: flex; }
   .header-nav-links { display: none !important; }
   .header-user-label { display: none !important; }
@@ -111,11 +112,10 @@ h1, h2, h3, h4 {
 /* iPhone safe area for bottom nav */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   .bottomnav {
-    height: calc(64px + env(safe-area-inset-bottom));
-    padding-bottom: env(safe-area-inset-bottom);
+    bottom: calc(12px + env(safe-area-inset-bottom));
   }
   @media (max-width: 1023px) {
-    .page-shell { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+    .page-shell { padding-bottom: calc(86px + env(safe-area-inset-bottom)); }
   }
 }
 
