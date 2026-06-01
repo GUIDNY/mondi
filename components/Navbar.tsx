@@ -122,7 +122,7 @@ export default function Navbar() {
               <>
                 <div onClick={() => setMenuOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 399 }} />
                 <div style={{
-                  position: "absolute", top: "calc(100% + 8px)", left: 0,
+                  position: "absolute", top: "calc(100% + 8px)", right: 0,
                   background: "rgba(14,21,16,0.97)", backdropFilter: "blur(16px)",
                   border: "1px solid rgba(92,222,151,0.2)", borderRadius: 12,
                   boxShadow: "0 8px 32px rgba(0,0,0,0.5)", zIndex: 400,
