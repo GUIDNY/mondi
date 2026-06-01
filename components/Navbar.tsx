@@ -241,16 +241,17 @@ export default function Navbar() {
         return (
           <Link key={item.href + item.label} href={item.href} style={{
             display: "flex", flexDirection: "column", alignItems: "center",
-            justifyContent: "center", gap: "2px", textDecoration: "none",
+            justifyContent: "center", gap: "3px", textDecoration: "none",
             color: active ? "var(--primary)" : "var(--on-surface-variant)",
-            opacity: active ? 1 : 0.65,
-            fontSize: "0.62rem", fontWeight: active ? 600 : 400,
-            flex: 1, padding: "6px 0",
-            background: active ? "rgba(92,222,151,0.08)" : "transparent",
-            borderRadius: 10,
+            opacity: active ? 1 : 0.6,
+            fontSize: "0.63rem", fontWeight: active ? 700 : 400,
+            flex: 1, minHeight: 44, padding: "4px 0",
+            background: active ? "rgba(92,222,151,0.1)" : "transparent",
+            borderRadius: 12,
             transition: "all 0.15s",
+            letterSpacing: "0.01em",
           }}>
-            <Icon name={item.icon} fill={active ? 1 : 0} size={active ? 24 : 22} />
+            <Icon name={item.icon} fill={active ? 1 : 0} size={26} />
             {item.label}
           </Link>
         );

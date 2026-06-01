@@ -61,10 +61,10 @@ function pointsBadge(pts: number | null | undefined) {
 }
 
 const scoreInput: React.CSSProperties = {
-  width: 46, textAlign: "center", padding: "6px 4px",
-  background: "rgba(255,255,255,0.05)", border: "1px solid rgba(61,74,64,0.6)",
-  borderRadius: 8, color: "var(--on-surface)", fontSize: "1rem", fontWeight: 700,
-  fontFamily: "Montserrat,sans-serif", outline: "none",
+  width: 52, height: 48, textAlign: "center", padding: "4px",
+  background: "rgba(255,255,255,0.07)", border: "1px solid rgba(61,74,64,0.7)",
+  borderRadius: 10, color: "var(--on-surface)", fontSize: "1.15rem", fontWeight: 700,
+  fontFamily: "Montserrat,sans-serif", outline: "none", touchAction: "manipulation",
 };
 
 const WC_STAGES = new Set(["group", "r32", "r16", "qf", "sf", "3rd", "final"]);
