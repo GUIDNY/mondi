@@ -108,13 +108,13 @@ export default function Navbar() {
         )}
         {session ? (
           <div style={{ position: "relative" }}>
-            <button onClick={() => setMenuOpen(o => !o)} style={{
-              width: 34, height: 34, borderRadius: "50%",
+            <button className="btn-circle" onClick={() => setMenuOpen(o => !o)} style={{
+              width: 38, height: 38, minHeight: 38, borderRadius: "50%",
               background: "linear-gradient(135deg, var(--primary), #22c55e)",
               border: "1.5px solid rgba(92,222,151,0.35)",
               display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: "0.9rem", fontWeight: 800, color: "var(--on-primary-container)",
-              cursor: "pointer", fontFamily: "Rubik,sans-serif",
+              fontSize: "0.95rem", fontWeight: 800, color: "var(--on-primary-container)",
+              cursor: "pointer", fontFamily: "Rubik,sans-serif", flexShrink: 0,
             }}>
               {session.username[0]?.toUpperCase()}
             </button>

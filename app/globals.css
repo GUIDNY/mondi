@@ -123,7 +123,7 @@ h1, h2, h3, h4 {
 
 /* ── Mobile touch targets ── */
 @media (max-width: 1023px) {
-  button, a[href], input, select, textarea {
+  button:not(.btn-circle), a[href]:not(.btn-circle), input, select, textarea {
     min-height: 44px;
   }
   input[type="number"] {
