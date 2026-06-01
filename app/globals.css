@@ -109,15 +109,6 @@ h1, h2, h3, h4 {
   .header-user-label { display: none !important; }
   .page-inner { padding: 1rem 1rem 2rem; }
 
-  /* Center logo on mobile */
-  header {
-    position: relative;
-  }
-  header > div:first-child {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-  }
 }
 
 /* iPhone safe area for bottom nav */

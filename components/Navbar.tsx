@@ -57,45 +57,43 @@ export default function Navbar() {
   const header = (
     <header style={{
       position: "relative", height: "var(--header-h)",
-      background: "rgba(14,21,16,0.88)", backdropFilter: "blur(14px)",
+      background: "rgba(14,21,16,0.95)", backdropFilter: "blur(14px)",
       borderBottom: "1px solid rgba(61,74,64,0.22)",
-      boxShadow: "0 0 20px rgba(92,222,151,0.08)",
       display: "flex", alignItems: "center", justifyContent: "space-between",
       padding: "0 1rem", zIndex: 300,
-      direction: "rtl",
     }}>
-      {/* RIGHT side (start in RTL): logo + nav links */}
-      <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
-        <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <img src="/mondi-logo-new.png" alt="MatchMate" style={{ width: 32, height: 32, borderRadius: 8 }} />
-          <span style={{
-            fontFamily: "'Arial Black', Montserrat, sans-serif", fontWeight: 900, fontSize: "1.25rem",
-            background: "linear-gradient(135deg, #fff 0%, #ffe066 50%, #f0b429 100%)",
-            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-            direction: "ltr", display: "inline-block", letterSpacing: "0.02em",
-          }}>
-            MatchMate
-          </span>
-        </Link>
-        <nav className="header-nav-links" style={{ display: "flex", gap: "1.5rem" }}>
-          {navItems.map(item => {
-            const active = item.exact ? path === item.href : path.startsWith(item.href);
-            return (
-              <Link key={item.href} href={item.href} style={{
-                color: active ? "var(--primary)" : "var(--on-surface-variant)",
-                fontSize: "0.78rem", fontWeight: active ? 600 : 400,
-                textDecoration: "none",
-                borderBottom: active ? "2px solid var(--primary)" : "2px solid transparent",
-                paddingBottom: "2px",
-                fontFamily: "Rubik,sans-serif",
-              }}>
-                {item.labelHe}
-              </Link>
-            );
-          })}
-        </nav>
-      </div>
+      {/* Logo — centered on mobile, right-aligned on desktop */}
+      <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "0.5rem", position: "absolute", left: "50%", transform: "translateX(-50%)" }}>
+        <img src="/mondi-logo-new.png" alt="MatchMate" style={{ width: 30, height: 30, borderRadius: 7 }} />
+        <span style={{
+          fontFamily: "'Arial Black', Montserrat, sans-serif", fontWeight: 900, fontSize: "1.2rem",
+          background: "linear-gradient(135deg, #fff 0%, #ffe066 50%, #f0b429 100%)",
+          WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+          backgroundClip: "text", direction: "ltr", display: "inline-block",
+        }}>
+          MatchMate
+        </span>
+      </Link>
+
+      {/* Desktop nav links (hidden on mobile) */}
+      <nav className="header-nav-links" style={{ display: "flex", gap: "1.5rem" }}>
+        {navItems.map(item => {
+          const active = item.exact ? path === item.href : path.startsWith(item.href);
+          return (
+            <Link key={item.href} href={item.href} style={{
+              color: active ? "var(--primary)" : "var(--on-surface-variant)",
+              fontSize: "0.78rem", fontWeight: active ? 600 : 400,
+              textDecoration: "none",
+              borderBottom: active ? "2px solid var(--primary)" : "2px solid transparent",
+              paddingBottom: "2px", fontFamily: "Rubik,sans-serif",
+            }}>
+              {item.labelHe}
+            </Link>
+          );
+        })}
+      </nav>
+      {/* Spacer so avatar stays on left */}
+      <div style={{ width: 34 }} className="header-nav-links" />
 
       {/* LEFT side (end in RTL): user info + avatar */}
       <div style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
