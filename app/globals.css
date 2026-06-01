@@ -90,11 +90,12 @@ h1, h2, h3, h4 {
   left: 12px;
   right: 12px;
   height: 62px;
-  background: rgba(9,16,11,0.96);
-  backdrop-filter: blur(24px);
-  border: 1px solid rgba(61,74,64,0.3);
+  background: #0a110b;
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border: 1px solid rgba(92,222,151,0.12);
   border-radius: 20px;
-  box-shadow: 0 4px 32px rgba(0,0,0,0.6);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.8), 0 2px 8px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,0,0,0.4);
   z-index: 300;
   align-items: center;
   justify-content: space-around;
