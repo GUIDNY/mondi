@@ -61,15 +61,15 @@ export default function Navbar() {
       borderBottom: "1px solid rgba(61,74,64,0.22)",
       boxShadow: "0 0 20px rgba(92,222,151,0.08)",
       display: "flex", alignItems: "center", justifyContent: "space-between",
-      padding: "0 1.25rem", zIndex: 300,
+      padding: "0 1rem", zIndex: 300,
       direction: "rtl",
     }}>
       {/* RIGHT side (start in RTL): logo + nav links */}
       <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
         <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <img src="/mondi-logo-new.png" alt="MatchMate" style={{ width: 36, height: 36, borderRadius: 8 }} />
+          <img src="/mondi-logo-new.png" alt="MatchMate" style={{ width: 32, height: 32, borderRadius: 8 }} />
           <span style={{
-            fontFamily: "'Arial Black', Montserrat, sans-serif", fontWeight: 900, fontSize: "1.4rem",
+            fontFamily: "'Arial Black', Montserrat, sans-serif", fontWeight: 900, fontSize: "1.25rem",
             background: "linear-gradient(135deg, #fff 0%, #ffe066 50%, #f0b429 100%)",
             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
             backgroundClip: "text",
